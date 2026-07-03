@@ -1,0 +1,365 @@
+professor,day,time_slot,division,subject,room,type
+Ms. M. A. Indalkar,Monday,10:00 am- 11:00 am,AD1,FPL Tutorial,MB 614,Tutorial
+Dr. K. S. Dhabekar,Monday,11:00 am - 12:00 pm,AD1,AP (Applied Physics),AC 301,Theory
+Ms. D. R. Sangpal,Monday,12:45 pm - 13:45 pm,AD1,M-I (Engineering Mathematics I),AC 503,Theory
+Ms. M. A. Indalkar,Monday,13:45 pm - 14:45 pm,AD1,FPL (Fundamentals of Programming Languages),AC 503,Theory
+Dr. K. S. Dhabekar,Monday,15:15 pm - 16:15 pm,AD1,"AP Lab Batch A / EEL-1 Batch B,C",MB 601/MB 605 / MB 614,Lab
+Ms. G. N. Rukare,Monday,15:15 pm - 16:15 pm,AD1,"AP Lab Batch A / EEL-1 Batch B,C",MB 601/MB 605 / MB 614,Lab
+Ms. C. P. Thottan,Tuesday,12:45 pm - 13:45 pm,AD1,BET (Basics of Electrical Technology),AC 301,Theory
+Ms. A. Parmar,Tuesday,13:45 pm - 14:45 pm,AD1,ICC (Indian Culture & Civilization),AC 301,Theory
+Dr. K. S. Dhabekar,Tuesday,15:15 pm - 16:15 pm,AD1,"AP Lab Batch B / EEL-1 Batch A,C",MB 601/MB 605 / MB 614,Lab
+Ms. A. A. Bijawe,Tuesday,15:15 pm - 16:15 pm,AD1,"AP Lab Batch B / EEL-1 Batch A,C",MB 601/MB 605 / MB 614,Lab
+Ms. C. P. Thottan,Wednesday,10:00 am- 11:00 am,AD1,BET (Basics of Electrical Technology),AC 301,Theory
+Ms. M. A. Indalkar,Wednesday,11:00 am - 12:00 pm,AD1,FPL (Fundamentals of Programming Languages),AC 301,Theory
+Ms. D. R. Sangpal,Wednesday,12:45 pm - 13:45 pm,AD1,M-I (Engineering Mathematics I),AC 301,Theory
+Dr. K. S. Dhabekar,Wednesday,13:45 pm - 14:45 pm,AD1,AP (Applied Physics),AC 301,Theory
+Ms. M. S. Taware,Wednesday,15:15 pm - 16:15 pm,AD1,"AP Lab Batch C / EEL-1 Batch A,B",MB 601/MB 605 / MB 614,Lab
+Ms. M. A. Indalkar,Wednesday,15:15 pm - 16:15 pm,AD1,"AP Lab Batch C / EEL-1 Batch A,B",MB 601/MB 605 / MB 614,Lab
+Ms. P. N. Wadikar,Thursday,10:00 am- 11:00 am,AD1,EG Tutorial,MB 207A,Tutorial
+Ms. B. B. Niture,Thursday,11:00 am - 12:00 pm,AD1,BET Tutorial,MB 207A,Tutorial
+Ms. D. R. Sangpal,Thursday,12:45 pm - 13:45 pm,AD1,M-I (Engineering Mathematics I),AC 301,Theory
+Dr. K. S. Dhabekar,Thursday,13:45 pm - 14:45 pm,AD1,AP (Applied Physics),AC 301,Theory
+Ms. S. S. Jawalkar,Friday,12:45 pm - 13:45 pm,AD1,EG (Engineering Graphics),AC 301,Theory
+Ms. S. S. Jawalkar,Friday,13:45 pm - 14:45 pm,AD1,EG (Engineering Graphics),AC 301,Theory
+Ms. D. R. Sangpal,Friday,15:15 pm - 16:15 pm,AD1,M-I Tutorial,MB 207A,Tutorial
+Ms. D. R. Sangpal,Monday,10:00 am- 11:00 am,AD2,M-I (Engineering Mathematics I),AC 303,Theory
+Ms. A. A. Bijawe,Monday,11:00 am - 12:00 pm,AD2,FPL Tutorial,MB 614,Tutorial
+Ms. C. P. Thottan,Monday,12:45 pm - 13:45 pm,AD2,BET (Basics of Electrical Technology),AC 504,Theory
+Dr. K. S. Dhabekar,Monday,13:45 pm - 14:45 pm,AD2,AP (Applied Physics),AC 504,Theory
+Ms. D. R. Sangpal,Monday,15:15 pm - 16:15 pm,AD2,M-I Tutorial,MB 207A,Tutorial
+Ms. C. P. Thottan,Tuesday,10:00 am- 11:00 am,AD2,BET Tutorial,MB 207A,Tutorial
+Ms. P. N. Wadikar,Tuesday,11:00 am - 12:00 pm,AD2,EG Tutorial,MB 207A,Tutorial
+Ms. D. R. Sangpal,Tuesday,12:45 pm - 13:45 pm,AD2,M-I (Engineering Mathematics I),AC 404,Theory
+Ms. M. S. Taware,Tuesday,13:45 pm - 14:45 pm,AD2,AP (Applied Physics),AC 404,Theory
+Ms. A. A. Bijawe,Tuesday,15:15 pm - 16:15 pm,AD2,FPL (Fundamentals of Programming Languages),AC 404,Theory
+Dr. K. S. Dhabekar,Wednesday,12:45 pm - 13:45 pm,AD2,AP (Applied Physics),AC 404,Theory
+Ms. P. T. Avhad,Wednesday,13:45 pm - 14:45 pm,AD2,FPL (Fundamentals of Programming Languages),AC 404,Theory
+Ms. S. A. Upasani,Wednesday,15:15 pm - 16:15 pm,AD2,BET (Basics of Electrical Technology),AC 404,Theory
+Dr. T. D. Gadekar,Thursday,12:45 pm - 13:45 pm,AD2,EG (Engineering Graphics),AC 404,Theory
+Dr. T. D. Gadekar,Thursday,13:45 pm - 14:45 pm,AD2,EG (Engineering Graphics),AC 404,Theory
+Dr. D. P. Sali,Thursday,15:15 pm - 16:15 pm,AD2,"AP Lab Batch A / EEL-1 Batch B,C",MB 601/MB 605 / MB 614,Lab
+Ms. A. A. Bijawe,Thursday,15:15 pm - 16:15 pm,AD2,"AP Lab Batch A / EEL-1 Batch B,C",MB 601/MB 605 / MB 614,Lab
+Dr. K. S. Dhabekar,Friday,10:00 am- 11:00 am,AD2,"AP:C Lab / EEL-1 Batch A,B",MB 601/MB 605 / MB 614,Lab
+Ms. M. A. Indalkar,Friday,10:00 am- 11:00 am,AD2,"AP:C Lab / EEL-1 Batch A,B",MB 601/MB 605 / MB 614,Lab
+Mrs. P. D. Kakde,Friday,12:45 pm - 13:45 pm,AD2,M-I (Engineering Mathematics I),AC 404,Theory
+Mrs. V. Y. Shinde,Friday,13:45 pm - 14:45 pm,AD2,ICC (Indian Culture & Civilization),AC 404,Theory
+Dr. K. S. Dhabekar,Friday,15:15 pm - 16:15 pm,AD2,"AP Lab Batch B / EEL-1 Batch A,C",MB 601/MB 605 / MB 614,Lab
+Ms. G. N. Rukare,Friday,15:15 pm - 16:15 pm,AD2,"AP Lab Batch B / EEL-1 Batch A,C",MB 601/MB 605 / MB 614,Lab
+Ms. D. S. Sisodia,Monday,12:45 pm - 13:45 pm,AD3,ICC (Indian Culture & Civilization),AC 301,Theory
+Mrs. P. D. Kakde,Monday,13:45 pm - 14:45 pm,AD3,M-I (Engineering Mathematics I),AC 301,Theory
+Ms. G. N. Rukare,Monday,15:15 pm - 16:15 pm,AD3,FPL (Fundamentals of Programming Languages),AC 403,Theory
+Dr. D. P. Sali,Monday,16:15 pm - 17:15 pm,AD3,AP (Applied Physics),AC 403,Theory
+Ms. S. A. Upasani,Tuesday,8:30 am- 9:30am,AD3,BET (Basics of Electrical Technology),AC 502,Theory
+Dr. D. P. Sali,Tuesday,10:00 am- 11:00 am,AD3,"AP:C Lab / EEL-1 Batch A,B",MB 601/MB 605 / MB 614,Lab
+Ms. A. A. Bijawe,Tuesday,10:00 am- 11:00 am,AD3,"AP:C Lab / EEL-1 Batch A,B",MB 601/MB 605 / MB 614,Lab
+Ms. P. N. Wadikar,Tuesday,12:45 pm - 13:45 pm,AD3,EG Tutorial,MB 207A,Tutorial
+Ms. S. A. Upasani,Tuesday,13:45 pm - 14:45 pm,AD3,BET Tutorial,MB 207A,Tutorial
+Mrs. P. D. Kakde,Tuesday,15:15 pm - 16:15 pm,AD3,M-I Tutorial,MB 207A,Tutorial
+Ms. C. P. Thottan,Wednesday,8:30 am- 9:30am,AD3,BET (Basics of Electrical Technology),AC 502,Theory
+Dr. D. P. Sali,Wednesday,10:00 am- 11:00 am,AD3,"AP:B Lab / EEL-1 Batch A,C",MB 601/MB 605 / MB 614,Lab
+Ms. G. N. Rukare,Wednesday,10:00 am- 11:00 am,AD3,"AP:B Lab / EEL-1 Batch A,C",MB 601/MB 605 / MB 614,Lab
+Dr. D. P. Sali,Wednesday,13:45 pm - 14:45 pm,AD3,AP (Applied Physics),AC 504,Theory
+Dr. K. S. Dhabekar,Wednesday,15:15 pm - 16:15 pm,AD3,PA (Performing Arts),Ground Floor,Practical
+Dr. D. P. Sali,Thursday,10:00 am- 11:00 am,AD3,"AP:A Lab / EEL-1 Batch B,C",MB 601/MB 605 / MB 614,Lab
+Ms. M. A. Indalkar,Thursday,10:00 am- 11:00 am,AD3,"AP:A Lab / EEL-1 Batch B,C",MB 601/MB 605 / MB 614,Lab
+Ms. D. R. Sangpal,Thursday,11:00 am - 12:00 pm,AD3,M-I (Engineering Mathematics I),AC 301,Theory
+Ms. D. R. Sangpal,Thursday,12:45 pm - 13:45 pm,AD3,M-I (Engineering Mathematics I),AC 504,Theory
+Dr. P. K. Katare,Thursday,13:45 pm - 14:45 pm,AD3,EG (Engineering Graphics),AC 403,Theory
+Mrs. P. D. Kakde,Friday,11:00 am - 12:00 pm,AD3,M-I (Engineering Mathematics I),AC 301,Theory
+Ms. G. N. Rukare,Friday,12:45 pm - 13:45 pm,AD3,FPL Tutorial,MB 614,Tutorial
+Dr. D. P. Sali,Friday,13:45 pm - 14:45 pm,AD3,AP (Applied Physics),AC 504,Theory
+Ms. Y. V. Belkhede,Friday,10:00 am- 11:00 am,AD3,FPL (Fundamentals of Programming Languages),AC 301,Theory
+Dr. A. S. Sawaikar,Monday,11:00 am - 12:00 pm,CE1,AP (Applied Physics),AC 303,Theory
+Mrs. V. Y. Shinde,Monday,12:45 pm - 13:45 pm,CE1,M-I (Engineering Mathematics I),AC 501,Theory
+Ms. C. P. Thottan,Monday,13:45 pm - 14:45 pm,CE1,BET (Basics of Electrical Technology),AC 501,Theory
+Dr. A. S. Sawaikar,Monday,15:15 pm - 16:15 pm,CE1,"AP Lab Batch A / EEL-1 Batch B,C",MB 601/MB 605 / MB 207B,Lab
+Ms. P. T. Avhad,Monday,15:15 pm - 16:15 pm,CE1,"AP Lab Batch A / EEL-1 Batch B,C",MB 601/MB 605 / MB 207B,Lab
+Dr. A. S. Sawaikar,Tuesday,12:45 pm - 13:45 pm,CE1,AP (Applied Physics),AC 501,Theory
+Mrs. V. Y. Shinde,Tuesday,13:45 pm - 14:45 pm,CE1,M-I (Engineering Mathematics I),AC 501,Theory
+Dr. A. S. Sawaikar,Tuesday,15:15 pm - 16:15 pm,CE1,"AP Lab Batch B / EEL-1 Batch A,C",MB 601/MB 605 / MB 207B,Lab
+Ms. Y. V. Belkhede,Tuesday,15:15 pm - 16:15 pm,CE1,"AP Lab Batch B / EEL-1 Batch A,C",MB 601/MB 605 / MB 207B,Lab
+Dr. A. S. Sawaikar,Wednesday,12:45 pm - 13:45 pm,CE1,AP (Applied Physics),AC 501,Theory
+Ms. P. T. Avhad,Wednesday,13:45 pm - 14:45 pm,CE1,FPL (Fundamentals of Programming Languages),AC 501,Theory
+Dr. A. S. Sawaikar,Wednesday,15:15 pm - 16:15 pm,CE1,"AP Lab Batch C / EEL-1 Batch A,B",MB 601/MB 605 / MB 207B,Lab
+Ms. N. D. Kolambe,Wednesday,15:15 pm - 16:15 pm,CE1,"AP Lab Batch C / EEL-1 Batch A,B",MB 601/MB 605 / MB 207B,Lab
+Ms. S. S. Jawalkar,Thursday,12:45 pm - 13:45 pm,CE1,EG (Engineering Graphics),AC 501,Theory
+Ms. S. S. Jawalkar,Thursday,13:45 pm - 14:45 pm,CE1,EG (Engineering Graphics),AC 501,Theory
+Ms. D. R. Sangpal,Thursday,15:15 pm - 16:15 pm,CE1,M-I Tutorial,MB 207A,Tutorial
+Ms. S. A. Upasani,Thursday,16:15 pm - 17:15 pm,CE1,BET (Basics of Electrical Technology),AC 403,Theory
+Ms. C. P. Thottan,Friday,10:00 am- 11:00 am,CE1,BET Tutorial,MB 207A,Tutorial
+Dr. T. D. Gadekar,Friday,11:00 am - 12:00 pm,CE1,EG Tutorial,MB 207A,Tutorial
+Ms. D. S. Sisodia,Friday,12:45 pm - 13:45 pm,CE1,ICC (Indian Culture & Civilization),AC 504,Theory
+Ms. Y. V. Belkhede,Friday,13:45 pm - 14:45 pm,CE1,FPL Tutorial,MB 614,Tutorial
+Dr. D. P. Sali,Friday,15:15 pm - 16:15 pm,CE1,PA (Performing Arts),Ground Floor,Practical
+Mrs. V. Y. Shinde,Friday,16:15 pm - 17:15 pm,CE1,M-I (Engineering Mathematics I),AC 501,Theory
+Ms. S. A. Upasani,Monday,8:30 am- 9:30am,CE2,BET (Basics of Electrical Technology),AC 502,Theory
+Mr. A. N. Bochare,Monday,10:00 am- 11:00 am,CE2,BET (Basics of Electrical Technology),AC 301,Theory
+Dr. T. D. Gadekar,Monday,12:45 pm - 13:45 pm,CE2,BET (Basics of Electrical Technology),AC 502,Theory
+Dr. T. D. Gadekar,Monday,13:45 pm - 14:45 pm,CE2,BET (Basics of Electrical Technology),AC 502,Theory
+Ms. M. S. Taware,Monday,15:15 pm - 16:15 pm,CE2,ICC (Indian Culture & Civilization),AC 404,Theory
+Mr. A. N. Bochare,Monday,16:15 pm - 17:15 pm,CE2,PA (Performing Arts),Ground Floor,Practical
+Mrs. V. Y. Shinde,Tuesday,11:00 am - 12:00 pm,CE2,M-I (Engineering Mathematics I),AC 301,Theory
+Ms. S. P. Aundhkar,Tuesday,12:45 pm - 13:45 pm,CE2,FPL (Fundamentals of Programming Languages),AC 502,Theory
+Ms. N. D. Kolambe,Tuesday,15:15 pm - 16:15 pm,CE2,FPL (Fundamentals of Programming Languages),AC 404,Theory
+Ms. S. S. Jawalkar,Wednesday,10:00 am- 11:00 am,CE2,EG Tutorial,MB 207A,Tutorial
+Ms. B. B. Niture,Wednesday,11:00 am - 12:00 pm,CE2,BET Tutorial,MB 207A,Tutorial
+Ms. N. D. Kolambe,Wednesday,12:45 pm - 13:45 pm,CE2,FPL (Fundamentals of Programming Languages),AC 502,Theory
+Mr. A. N. Bochare,Wednesday,13:45 pm - 14:45 pm,CE2,BET (Basics of Electrical Technology),AC 502,Theory
+Mrs. P. D. Kakde,Wednesday,15:15 pm - 16:15 pm,CE2,M-I Tutorial,MB 207A,Tutorial
+Ms. N. D. Kolambe,Wednesday,16:15 pm - 17:15 pm,CE2,FPL Tutorial,MB 207A,Tutorial
+Ms. B. B. Niture,Thursday,10:00 am- 11:00 am,CE2,BET (Basics of Electrical Technology),AC 301,Theory
+Mrs. V. Y. Shinde,Thursday,12:45 pm - 13:45 pm,CE2,M-I (Engineering Mathematics I),AC 502,Theory
+Mr. A. N. Bochare,Thursday,13:45 pm - 14:45 pm,CE2,BET (Basics of Electrical Technology),AC 502,Theory
+Dr. K. S. Dhabekar,Thursday,15:15 pm - 16:15 pm,CE2,"BET Lab Batch A / EEL-1 Batch B,C",MB 601/MB 605 / MB 207B,Lab
+Ms. A. D. Wangikar,Thursday,15:15 pm - 16:15 pm,CE2,"BET Lab Batch A / EEL-1 Batch B,C",MB 601/MB 605 / MB 207B,Lab
+Mr. A. N. Bochare,Friday,10:00 am- 11:00 am,CE2,"BET:C Lab / EEL-1 Batch A,B",MB 601/MB 605 / MB 207B,Lab
+Ms. Y. V. Belkhede,Friday,10:00 am- 11:00 am,CE2,"BET:C Lab / EEL-1 Batch A,B",MB 601/MB 605 / MB 207B,Lab
+Ms. D. R. Sangpal,Friday,12:45 pm - 13:45 pm,CE2,M-I (Engineering Mathematics I),AC 502,Theory
+Mr. A. N. Bochare,Friday,15:15 pm - 16:15 pm,CE2,"BET Lab Batch B / EEL-1 Batch A,C",MB 601/MB 605 / MB 207B,Lab
+Ms. N. D. Kolambe,Friday,15:15 pm - 16:15 pm,CE2,"BET Lab Batch B / EEL-1 Batch A,C",MB 601/MB 605 / MB 207B,Lab
+Ms. P. N. Wadikar,Monday,12:45 pm - 13:45 pm,CE3,EG Tutorial,MB 207A,Tutorial
+Ms. P. T. Avhad,Monday,13:45 pm - 14:45 pm,CE3,FPL Tutorial,MB 207A,Tutorial
+Mr. A. N. Bochare,Monday,15:15 pm - 16:15 pm,CE3,PA (Performing Arts),Ground Floor,Practical
+Ms. D. R. Sangpal,Monday,16:15 pm - 17:15 pm,CE3,M-I Tutorial,MB 207A,Tutorial
+Ms. P. T. Avhad,Tuesday,12:45 pm - 13:45 pm,CE3,FPL (Fundamentals of Programming Languages),AC 503,Theory
+Ms. S. Ghosh,Tuesday,13:45 pm - 14:45 pm,CE3,ICC (Indian Culture & Civilization),AC 503,Theory
+Ms. B. B. Niture,Tuesday,15:15 pm - 16:15 pm,CE3,BET (Basics of Electrical Technology),AC 503,Theory
+Mr. A. N. Bochare,Tuesday,16:15 pm - 17:15 pm,CE3,AP (Applied Physics),AC 503,Theory
+Ms. P. N. Wadikar,Wednesday,12:45 pm - 13:45 pm,CE3,EG (Engineering Graphics),AC 503,Theory
+Ms. P. N. Wadikar,Wednesday,13:45 pm - 14:45 pm,CE3,EG (Engineering Graphics),AC 503,Theory
+Mr. A. N. Bochare,Wednesday,15:15 pm - 16:15 pm,CE3,AP (Applied Physics),AC 503,Theory
+Mrs. V. Y. Shinde,Wednesday,16:15 pm - 17:15 pm,CE3,M-I (Engineering Mathematics I),AC 503,Theory
+Dr. D. P. Sali,Thursday,10:00 am- 11:00 am,CE3,"AP:A Lab / EEL-1 Batch B,C",MB 601/MB 605 / MB 207B,Lab
+Ms. P. T. Avhad,Thursday,10:00 am- 11:00 am,CE3,"AP:A Lab / EEL-1 Batch B,C",MB 601/MB 605 / MB 207B,Lab
+Dr. D. P. Sali,Thursday,12:45 pm - 13:45 pm,CE3,"AP:C Lab / EEL-1 Batch A,B",MB 601/MB 605 / MB 207B,Lab
+Ms. N. D. Kolambe,Thursday,12:45 pm - 13:45 pm,CE3,"AP:C Lab / EEL-1 Batch A,B",MB 601/MB 605 / MB 207B,Lab
+Mr. A. N. Bochare,Thursday,13:45 pm - 14:45 pm,CE3,"AP:B Lab / EEL-1 Batch A,C - continued",MB 601/MB 605 / MB 207B,Lab
+Ms. N. D. Kolambe,Thursday,13:45 pm - 14:45 pm,CE3,"AP:B Lab / EEL-1 Batch A,C - continued",MB 601/MB 605 / MB 207B,Lab
+Ms. N. D. Kolambe,Thursday,15:15 pm - 16:15 pm,CE3,FPL (Fundamentals of Programming Languages),AC 503,Theory
+Ms. D. R. Sangpal,Thursday,16:15 pm - 17:15 pm,CE3,M-I (Engineering Mathematics I),AC 503,Theory
+Mr. A. N. Bochare,Friday,10:00 am- 11:00 am,CE3,AP (Applied Physics),AC 504,Theory
+Ms. D. R. Sangpal,Friday,11:00 am - 12:00 pm,CE3,M-I (Engineering Mathematics I),AC 504,Theory
+Mr. A. N. Bochare,Friday,12:45 pm - 13:45 pm,CE3,"AP:B Lab / EEL-1 Batch A,C",MB 601/MB 605 / MB 207B,Lab
+Ms. P. T. Avhad,Friday,12:45 pm - 13:45 pm,CE3,"AP:B Lab / EEL-1 Batch A,C",MB 601/MB 605 / MB 207B,Lab
+Ms. C. P. Thottan,Friday,15:15 pm - 16:15 pm,CE3,BET (Basics of Electrical Technology),AC 503,Theory
+Ms. B. B. Niture,Friday,16:15 pm - 17:15 pm,CE3,BET Tutorial,MB 207A,Tutorial
+Ms. A. G. Joshi,Monday,9:00 am- 10:00 am,ET1,YM (Yoga & Meditation),Ground Floor,Practical
+Ms. D. S. Sisodia,Monday,10:30 am - 11:30 am,ET1,M-I (Engineering Mathematics I),AC 404,Theory
+Mr. S. L. Karche,Monday,11:30 am - 12:30 pm,ET1,GM (Geomatics),AC 404,Theory
+Ms. D. R. Parakhi,Monday,13:15 pm - 14:15 pm,ET1,BXT (Basics of Electronics Technology),AC 404,Theory
+Ms. S. P. Aundhkar,Monday,14:15 pm - 15:15 pm,ET1,FAI Tutorial,MB 614,Tutorial
+Ms. D. S. Sisodia,Tuesday,8:00 am - 9:00 am,ET1,M-I (Engineering Mathematics I),AC 404,Theory
+Mr. S. L. Karche,Tuesday,9:00 am- 10:00 am,ET1,GM (Geomatics),AC 404,Theory
+Dr. V. N. Patil,Tuesday,10:30 am - 11:30 am,ET1,AC (Applied Chemistry),AC 404,Theory
+Ms. S. P. Aundhkar,Tuesday,11:30 am - 12:30 pm,ET1,FAI (Foundation of Artificial Intelligence),AC 404,Theory
+Ms. D. R. Parakhi,Tuesday,13:15 pm - 14:15 pm,ET1,BXT Tutorial,MB 207B & MB 301,Tutorial
+Ms. D. S. Sisodia,Wednesday,9:00 am- 10:00 am,ET1,M-I (Engineering Mathematics I),AC 404,Theory
+Ms. S. P. Aundhkar,Wednesday,10:30 am - 11:30 am,ET1,FAI (Foundation of Artificial Intelligence),AC 404,Theory
+Dr. V. N. Patil,Wednesday,11:30 am - 12:30 pm,ET1,AC (Applied Chemistry),AC 404,Theory
+Ms. P. S. Sawant,Wednesday,13:15 pm - 14:15 pm,ET1,BXT Tutorial,MB 207B & MB 301,Tutorial
+Ms. D. S. Sisodia,Thursday,8:00 am - 9:00 am,ET1,"M-I Tutorial A,B / M-I Batch C",MB207B / MB605,Tutorial
+Mr. S. L. Karche,Thursday,9:00 am- 10:00 am,ET1,"GM Tutorial A,B / GM Batch C",MB207B / MB605,Tutorial
+Dr. V. N. Patil,Thursday,10:30 am - 11:30 am,ET1,"AC:C Lab / EEL-1 Batch A,B","MB 604/611 / MB 301, MB 306",Lab
+Ms. D. R. Parakhi,Thursday,10:30 am - 11:30 am,ET1,"AC:C Lab / EEL-1 Batch A,B","MB 604/611 / MB 301, MB 306",Lab
+Dr. V. N. Patil,Thursday,13:15 pm - 14:15 pm,ET1,"AC:A Lab / EEL-1 Batch B,C","MB 604/611 / MB 301, MB 306",Lab
+Ms. D. R. Parakhi,Thursday,13:15 pm - 14:15 pm,ET1,"AC:A Lab / EEL-1 Batch B,C","MB 604/611 / MB 301, MB 306",Lab
+Ms. S. P. Karande,Friday,8:00 am - 9:00 am,ET1,"CS:A (MB604) / CS B,C (AC 404, AC 501)",MB 604 / AC 404,Theory
+Ms. D. R. Parakhi,Friday,10:30 am - 11:30 am,ET1,BXT (Basics of Electronics Technology),AC 404,Theory
+Dr. V. N. Patil,Friday,11:30 am - 12:30 pm,ET1,AC (Applied Chemistry),AC 404,Theory
+Dr. V. N. Patil,Friday,13:15 pm - 14:15 pm,ET1,"AC:B Lab / EEL-1 Batch A,C","MB 604/611 / MB 301, MB 306",Lab
+Mr. K. S. Kulkarni,Friday,13:15 pm - 14:15 pm,ET1,"AC:B Lab / EEL-1 Batch A,C","MB 604/611 / MB 301, MB 306",Lab
+Mr. P. P. Yenare,Monday,8:00 am - 9:00 am,ET2,"AC:B Lab / EEL-1 A,C","MB 614/611 / MB 301, MB 306",Lab
+Ms. D. N. Parkhi,Monday,8:00 am - 9:00 am,ET2,"AC:B Lab / EEL-1 A,C","MB 614/611 / MB 301, MB 306",Lab
+Dr. M. T. Deshmukh,Monday,10:30 am - 11:30 am,ET2,BXT (Basics of Electronics Technology),AC 502,Theory
+Ms. A. D. Wangikar,Monday,11:30 am - 12:30 pm,ET2,FAI (Foundation of Artificial Intelligence),AC 502,Theory
+Ms. S. Ghosh,Monday,15:15 pm - 16:15 pm,ET2,ICC (Indian Culture & Civilization),AC 404,Theory
+Mr. A. N. Bochare,Monday,16:15 pm - 17:15 pm,ET2,PA (Performing Arts),Ground Floor,Practical
+Ms. S. Ghosh,Tuesday,8:00 am - 9:00 am,ET2,"CS:A (MB604) / CS B,C (AC 302, AC 402)","MB 604 / AC 302, AC 402",Theory
+Ms. S. A. Mashalkar,Tuesday,10:30 am - 11:30 am,ET2,GM (Geomatics),AC 502,Theory
+Ms. A. G. Joshi,Tuesday,11:30 am - 12:30 pm,ET2,M-I (Engineering Mathematics I),AC 502,Theory
+Mr. P. P. Yenare,Tuesday,13:15 pm - 14:15 pm,ET2,"AC:C Lab / EEL-1 Batch A,B","MB 604/611 / MB 301, MB 306",Lab
+Ms. D. N. Parkhi,Tuesday,13:15 pm - 14:15 pm,ET2,"AC:C Lab / EEL-1 Batch A,B","MB 604/611 / MB 301, MB 306",Lab
+Mr. P. P. Yenare,Wednesday,9:00 am- 10:00 am,ET2,AC (Applied Chemistry),AC 501,Theory
+Ms. R. M. Kedar,Wednesday,10:30 am - 11:30 am,ET2,BXT Tutorial,"MB 207A, MB 301",Tutorial
+Mr. A. S. Shinde,Wednesday,12:45 pm - 13:45 pm,ET2,M-I (Engineering Mathematics I),AC 302,Theory
+Mr. A. S. Shinde,Wednesday,13:15 pm - 14:15 pm,ET2,M-I (Engineering Mathematics I),AC 302,Theory
+Ms. A. D. Wangikar,Wednesday,14:15 pm - 15:15 pm,ET2,FAI Tutorial,MB 614,Tutorial
+Mr. A. S. Shinde,Thursday,9:00 am- 10:00 am,ET2,YM (Yoga & Meditation),Ground Floor,Practical
+Ms. R. M. Kedar,Thursday,11:30 am - 12:30 pm,ET2,BXT (Basics of Electronics Technology),AC 302,Theory
+Mr. P. P. Yenare,Thursday,13:15 pm - 14:15 pm,ET2,AC (Applied Chemistry),AC 504,Theory
+Ms. S. A. Mashalkar,Thursday,14:15 pm - 15:15 pm,ET2,GM (Geomatics),AC 504,Theory
+Ms. S. A. Mashalkar,Friday,8:00 am - 9:00 am,ET2,"GM Tutorial A,B / GM Batch C",MB207B / MB605,Tutorial
+Ms. A. G. Joshi,Friday,9:00 am- 10:00 am,ET2,"M-I Tutorial A,B / M-I Batch C",MB207B / MB605,Tutorial
+Mr. P. P. Yenare,Friday,10:30 am - 11:30 am,ET2,"AC:A Lab / EEL-1 Batch B,C","MB 604/611 / MB 301, MB 306",Lab
+Ms. A. D. Wangikar,Friday,10:30 am - 11:30 am,ET2,"AC:A Lab / EEL-1 Batch B,C","MB 604/611 / MB 301, MB 306",Lab
+Ms. A. G. Joshi,Friday,13:15 pm - 14:15 pm,ET2,M-I (Engineering Mathematics I),AC 403,Theory
+Mr. P. P. Yenare,Friday,14:15 pm - 15:15 pm,ET2,AC (Applied Chemistry),AC 403,Theory
+Ms. V. V. Parode,Monday,8:00 am - 9:00 am,ET3,FAI (Foundation of Artificial Intelligence),AC 501,Theory
+Ms. P. S. Sawant,Monday,9:00 am- 10:00 am,ET3,BXT (Basics of Electronics Technology),AC 501,Theory
+Mr. S. L. Karche,Monday,10:30 am - 11:30 am,ET3,"GM Tutorial A,B / GM Batch C",MB207B / MB605,Tutorial
+Ms. A. G. Joshi,Monday,11:30 am - 12:30 pm,ET3,"M-I Tutorial A,B / M-I Batch C",MB207B / MB605,Tutorial
+Dr. P. Kaswan,Monday,13:15 pm - 14:15 pm,ET3,AC (Applied Chemistry),AC 402,Theory
+Mr. R. B. Kamble,Tuesday,8:00 am - 9:00 am,ET3,GM (Geomatics),AC 503,Theory
+Dr. P. Kaswan,Tuesday,9:00 am- 10:00 am,ET3,AC (Applied Chemistry),AC 503,Theory
+Dr. K. N. Handore,Tuesday,10:30 am - 11:30 am,ET3,YM (Yoga & Meditation),Ground Floor,Practical
+Ms. P. S. Sawant,Tuesday,11:30 am - 12:30 pm,ET3,BXT Tutorial,"MB 207A, MB 301",Tutorial
+Mr. S. M. Sarate,Tuesday,13:15 pm - 14:15 pm,ET3,M-I (Engineering Mathematics I),AC 402,Theory
+Ms. V. V. Parode,Tuesday,14:15 pm - 15:15 pm,ET3,FAI Tutorial,MB 614,Tutorial
+Dr. M. Kothari,Wednesday,8:00 am - 9:00 am,ET3,"CS:A (MB604) / CS B,C (AC 302, AC 403)","MB 604 / AC 302, AC 403",Theory
+Ms. A. D. Wangikar,Wednesday,10:30 am - 11:30 am,ET3,FAI (Foundation of Artificial Intelligence),AC 502,Theory
+Mr. S. L. Karche,Wednesday,11:30 am - 12:30 pm,ET3,GM (Geomatics),AC 502,Theory
+Dr. P. Kaswan,Wednesday,13:15 pm - 14:15 pm,ET3,"AC:A Lab / EEL-1 Batch B,C","MB 604/611 / MB 301, MB 306",Lab
+Ms. P. S. Sawant,Wednesday,13:15 pm - 14:15 pm,ET3,"AC:A Lab / EEL-1 Batch B,C","MB 604/611 / MB 301, MB 306",Lab
+Dr. P. Kaswan,Thursday,8:00 am - 9:00 am,ET3,"AC:B Lab / EEL-1 Batch A,C","MB 614/611 / MB 301, MB 306",Lab
+Mr. Kunal Kulkarni,Thursday,8:00 am - 9:00 am,ET3,"AC:B Lab / EEL-1 Batch A,C","MB 614/611 / MB 301, MB 306",Lab
+Dr. P. Kaswan,Thursday,10:30 am - 11:30 am,ET3,AC (Applied Chemistry),AC 404,Theory
+Mr. A. S. Shinde,Thursday,11:30 am - 12:30 pm,ET3,M-I (Engineering Mathematics I),AC 404,Theory
+Ms. D. N. Parkhi,Thursday,13:15 pm - 14:15 pm,ET3,BXT (Basics of Electronics Technology),AC 402,Theory
+Dr. P. Kaswan,Friday,8:00 am - 9:00 am,ET3,"AC:C Lab / EEL-1 Batch A,B","MB 614/611 / MB 301, MB 306",Lab
+Ms. R. M. Kedar,Friday,8:00 am - 9:00 am,ET3,"AC:C Lab / EEL-1 Batch A,B","MB 614/611 / MB 301, MB 306",Lab
+Ms. A. G. Joshi,Friday,10:30 am - 11:30 am,ET3,M-I (Engineering Mathematics I),AC 501,Theory
+Dr. P. Kaswan,Friday,11:30 am - 12:30 pm,ET3,AC (Applied Chemistry),AC 501,Theory
+Ms. M. S. Taware,Monday,12:45 pm - 13:45 pm,EL,"AP Lab Batch A / EEL-1 Batch B,C",MB 601/MB 605 / Ground Floor,Lab
+Ms. C. P. Thottan,Monday,12:45 pm - 13:45 pm,EL,"AP Lab Batch A / EEL-1 Batch B,C",MB 601/MB 605 / Ground Floor,Lab
+Ms. P. T. Avhad,Monday,15:15 pm - 16:15 pm,EL,FPL (Fundamentals of Programming Languages),AC 504,Theory
+Ms. M. S. Taware,Monday,16:15 pm - 17:15 pm,EL,AP (Applied Physics),AC 504,Theory
+Mrs. P. D. Kakde,Tuesday,12:45 pm - 13:45 pm,EL,M-I (Engineering Mathematics I),AC 504,Theory
+Ms. P. T. Avhad,Tuesday,13:45 pm - 14:45 pm,EL,FPL (Fundamentals of Programming Languages),AC 504,Theory
+Ms. M. S. Taware,Tuesday,15:15 pm - 16:15 pm,EL,ICC (Indian Culture & Civilization),AC 504,Theory
+Mrs. P. D. Kakde,Tuesday,16:15 pm - 17:15 pm,EL,M-I Tutorial,MB 207A,Tutorial
+Ms. S. S. Jawalkar,Wednesday,12:45 pm - 13:45 pm,EL,EG Tutorial,MB 207A,Tutorial
+Ms. C. P. Thottan,Wednesday,13:45 pm - 14:45 pm,EL,BET Tutorial,MB 207A,Tutorial
+Ms. B. B. Niture,Wednesday,15:15 pm - 16:15 pm,EL,BET (Basics of Electrical Technology),AC 504,Theory
+Mrs. P. D. Kakde,Wednesday,16:15 pm - 17:15 pm,EL,M-I (Engineering Mathematics I),AC 504,Theory
+Dr. P. K. Katare,Thursday,10:00 am- 11:00 am,EL,EG (Engineering Graphics),AC 504,Theory
+Dr. P. K. Katare,Thursday,11:00 am - 12:00 pm,EL,EG (Engineering Graphics),AC 504,Theory
+Ms. M. S. Taware,Thursday,12:45 pm - 13:45 pm,EL,"AP:C Lab / EEL-1 Batch A,B",MB 601/MB 605 / Ground Floor,Lab
+Ms. S. A. Upasani,Thursday,12:45 pm - 13:45 pm,EL,"AP:C Lab / EEL-1 Batch A,B",MB 601/MB 605 / Ground Floor,Lab
+Ms. B. B. Niture,Thursday,15:15 pm - 16:15 pm,EL,BET (Basics of Electrical Technology),AC 504,Theory
+Ms. P. T. Avhad,Thursday,16:15 pm - 17:15 pm,EL,FPL Tutorial,MB 207A,Tutorial
+Mrs. P. D. Kakde,Friday,10:00 am- 11:00 am,EL,M-I (Engineering Mathematics I),AC 402,Theory
+Ms. M. S. Taware,Friday,11:00 am - 12:00 pm,EL,AP (Applied Physics),AC 402,Theory
+Ms. M. S. Taware,Friday,12:45 pm - 13:45 pm,EL,"AP:B Lab / EEL-1 Batch A,C",MB 601/MB 605 / Ground Floor,Lab
+Ms. B. B. Niture,Friday,12:45 pm - 13:45 pm,EL,"AP:B Lab / EEL-1 Batch A,C",MB 601/MB 605 / Ground Floor,Lab
+Ms. M. S. Taware,Friday,15:15 pm - 16:15 pm,EL,AP (Applied Physics),AC 502,Theory
+Mrs. P. D. Kakde,Friday,16:15 pm - 17:15 pm,EL,PA (Performing Arts),Ground Floor,Practical
+Mr. S. M. Sarate,Monday,8:00 am - 9:00 am,IT1,"M-I Tutorial A,B / M-I Batch C",MB207B / MB605,Tutorial
+Ms. S. A. Mashalkar,Monday,9:00 am- 10:00 am,IT1,"GM Tutorial A,B / GM Batch C",MB207B / MB605,Tutorial
+Dr. V. N. Patil,Monday,10:30 am - 11:30 am,IT1,AC (Applied Chemistry),AC 302,Theory
+Dr. M. T. Deshmukh,Monday,11:30 am - 12:30 pm,IT1,BXT (Basics of Electronics Technology),AC 302,Theory
+Ms. S. Ghosh,Monday,13:15 pm - 14:15 pm,IT1,"CS:A (MB604) / CS B,C (AC 302, AC 402)",MB 604 / AC 302,Theory
+Dr. V. N. Patil,Tuesday,8:00 am - 9:00 am,IT1,"AC:B Lab / EEL-1 Batch A,C","MB 614/611 / MB 407B, MB 408B",Lab
+Ms. V. V. Parode,Tuesday,8:00 am - 9:00 am,IT1,"AC:B Lab / EEL-1 Batch A,C","MB 614/611 / MB 407B, MB 408B",Lab
+Dr. M. T. Deshmukh,Tuesday,10:30 am - 11:30 am,IT1,BXT (Basics of Electronics Technology),AC 302,Theory
+Mr. S. M. Sarate,Tuesday,11:30 am - 12:30 pm,IT1,M-I (Engineering Mathematics I),AC 302,Theory
+Dr. V. N. Patil,Wednesday,8:00 am - 9:00 am,IT1,"AC:A Lab / EEL-1 Batch B,C","MB 614/611 / MB 407B, MB 408B",Lab
+Ms. N. C. Naidu,Wednesday,8:00 am - 9:00 am,IT1,"AC:A Lab / EEL-1 Batch B,C","MB 614/611 / MB 407B, MB 408B",Lab
+Ms. S. A. Mashalkar,Wednesday,10:30 am - 11:30 am,IT1,GM (Geomatics),AC 302,Theory
+Ms. D. R. Parakhi,Wednesday,11:30 am - 12:30 pm,IT1,BXT Tutorial,MB 207B & MB 301,Tutorial
+Ms. N. C. Naidu,Wednesday,13:15 pm - 14:15 pm,IT1,PLB Tutorial,MB 614,Tutorial
+Ms. N. C. Naidu,Thursday,8:00 am - 9:00 am,IT1,PLB (Programming & Logic Building),AC 302,Theory
+Mr. S. M. Sarate,Thursday,9:00 am- 10:00 am,IT1,M-I (Engineering Mathematics I),AC 302,Theory
+Dr. V. N. Patil,Thursday,10:30 am - 11:30 am,IT1,"AC:C Lab / EEL-1 Batch A,B","MB 604/611 / MB 407B, MB 408B",Lab
+Ms. P. B. Warunsge,Thursday,10:30 am - 11:30 am,IT1,"AC:C Lab / EEL-1 Batch A,B","MB 604/611 / MB 407B, MB 408B",Lab
+Dr. V. N. Patil,Thursday,13:15 pm - 14:15 pm,IT1,AC (Applied Chemistry),AC 302,Theory
+Ms. S. A. Mashalkar,Thursday,14:15 pm - 15:15 pm,IT1,GM (Geomatics),AC 302,Theory
+Dr. V. N. Patil,Friday,8:00 am - 9:00 am,IT1,AC (Applied Chemistry),AC 302,Theory
+Ms. N. C. Naidu,Friday,9:00 am- 10:00 am,IT1,PLB (Programming & Logic Building),AC 302,Theory
+Mr. A. S. Shinde,Friday,10:30 am - 11:30 am,IT1,YM (Yoga & Meditation),Ground Floor,Practical
+Mr. S. M. Sarate,Friday,13:15 pm - 14:15 pm,IT1,M-I (Engineering Mathematics I),AC 302,Theory
+Ms. P. B. Warunsge,Monday,8:00 am - 9:00 am,IT2,PLB (Programming & Logic Building),AC 402,Theory
+Mr. A. S. Shinde,Monday,9:00 am- 10:00 am,IT2,M-I (Engineering Mathematics I),AC 402,Theory
+Dr. K. N. Handore,Monday,10:30 am - 11:30 am,IT2,"AC:B Lab / EEL-1 Batch A,C","MB 604/611 / MB 407B, MB 408B",Lab
+Ms. N. C. Naidu,Monday,10:30 am - 11:30 am,IT2,"AC:B Lab / EEL-1 Batch A,C","MB 604/611 / MB 407B, MB 408B",Lab
+Dr. K. N. Handore,Monday,13:15 pm - 14:15 pm,IT2,"AC:C Lab / EEL-1 Batch A,B","MB 604/611 / MB 407B, MB 408B",Lab
+Ms. S. P. Aundhkar,Monday,13:15 pm - 14:15 pm,IT2,"AC:C Lab / EEL-1 Batch A,B","MB 604/611 / MB 407B, MB 408B",Lab
+Mr. R. B. Kamble,Tuesday,8:00 am - 9:00 am,IT2,"GM Tutorial A,B / GM Batch C",MB207B / MB605,Tutorial
+Mr. A. S. Shinde,Tuesday,9:00 am- 10:00 am,IT2,"M-I Tutorial A,B / M-I Batch C",MB207B / MB605,Tutorial
+Ms. A. Parmar,Tuesday,10:30 am - 11:30 am,IT2,"CS:A (MB604) / CS B,C (AC 402, AC 501)",MB 604 / AC 402,Theory
+Ms. D. R. Parakhi,Wednesday,8:00 am - 9:00 am,IT2,BXT (Basics of Electronics Technology),AC 402,Theory
+Mr. S. M. Sarate,Wednesday,9:00 am- 10:00 am,IT2,YM (Yoga & Meditation),Ground Floor,Practical
+Ms. S. D. Kar,Wednesday,10:30 am - 11:30 am,IT2,GM (Geomatics),AC 402,Theory
+Dr. K. N. Handore,Wednesday,11:30 am - 12:30 pm,IT2,AC (Applied Chemistry),AC 402,Theory
+Mr. A. S. Shinde,Wednesday,13:15 pm - 14:15 pm,IT2,M-I (Engineering Mathematics I),AC 402,Theory
+Ms. D. R. Parakhi,Wednesday,14:15 pm - 15:15 pm,IT2,BXT Tutorial,MB 207B & MB 301,Tutorial
+Ms. D. R. Parakhi,Thursday,8:00 am - 9:00 am,IT2,BXT (Basics of Electronics Technology),AC 503,Theory
+Ms. P. B. Warunsge,Thursday,9:00 am- 10:00 am,IT2,PLB (Programming & Logic Building),AC 503,Theory
+Mr. A. S. Shinde,Thursday,10:30 am - 11:30 am,IT2,M-I (Engineering Mathematics I),AC 402,Theory
+Dr. K. N. Handore,Thursday,11:30 am - 12:30 pm,IT2,AC (Applied Chemistry),AC 402,Theory
+Ms. P. B. Warunsge,Thursday,13:15 pm - 14:15 pm,IT2,PLB Tutorial,MB 614,Tutorial
+Dr. K. N. Handore,Friday,8:00 am - 9:00 am,IT2,AC (Applied Chemistry),AC 402,Theory
+Mr. R. B. Kamble,Friday,9:00 am- 10:00 am,IT2,GM (Geomatics),AC 402,Theory
+Dr. K. N. Handore,Friday,10:30 am - 11:30 am,IT2,"AC:A Lab / EEL-1 Batch B,C","MB 604/611 / MB 407B, MB 408B",Lab
+Ms. P. B. Warunsge,Friday,10:30 am - 11:30 am,IT2,"AC:A Lab / EEL-1 Batch B,C","MB 604/611 / MB 407B, MB 408B",Lab
+Ms. D. S. Sisodia,Monday,8:00 am - 9:00 am,IT3,M-I (Engineering Mathematics I),AC 403,Theory
+Ms. P. B. Warunsge,Monday,9:00 am- 10:00 am,IT3,PLB (Programming & Logic Building),AC 403,Theory
+Ms. A. G. Joshi,Monday,10:30 am - 11:30 am,IT3,YM (Yoga & Meditation),Ground Floor,Practical
+Ms. D. M. Kulkarni,Monday,11:30 am - 12:30 pm,IT3,AC (Applied Chemistry),AC 403,Theory
+Ms. R. M. Kedar,Tuesday,9:00 am- 10:00 am,IT3,BXT (Basics of Electronics Technology),AC 403,Theory
+Ms. R. M. Kedar,Tuesday,10:30 am - 11:30 am,IT3,BXT Tutorial,"MB 207B, MB 301",Tutorial
+Ms. S. A. Mashalkar,Tuesday,11:30 am - 12:30 pm,IT3,GM (Geomatics),AC 403,Theory
+Ms. P. B. Warunsge,Tuesday,13:15 pm - 14:15 pm,IT3,PLB Tutorial,MB 614,Tutorial
+Ms. D. S. Sisodia,Wednesday,8:00 am - 9:00 am,IT3,"M-I Tutorial A,B / M-I Batch C",MB207B / MB605,Tutorial
+Ms. S. A. Mashalkar,Wednesday,9:00 am- 10:00 am,IT3,"GM Tutorial A,B / GM Batch C",MB207B / MB605,Tutorial
+Ms. S. P. Karande,Wednesday,10:30 am - 11:30 am,IT3,"CS:A (MB604) / CS B,C (AC 403, AC 501)",MB 604 / AC 403,Theory
+Ms. D. M. Kulkarni,Wednesday,13:15 pm - 14:15 pm,IT3,"AC:A Lab / EEL-1 Batch B,C","MB 604/611 / MB 407B, MB 408B",Lab
+Ms. N. C. Naidu,Wednesday,13:15 pm - 14:15 pm,IT3,"AC:A Lab / EEL-1 Batch B,C","MB 604/611 / MB 407B, MB 408B",Lab
+Ms. D. M. Kulkarni,Thursday,9:00 am- 10:00 am,IT3,AC (Applied Chemistry),AC 403,Theory
+Ms. D. S. Sisodia,Thursday,10:30 am - 11:30 am,IT3,M-I (Engineering Mathematics I),AC 403,Theory
+Ms. P. B. Warunsge,Thursday,11:30 am - 12:30 pm,IT3,PLB (Programming & Logic Building),AC 403,Theory
+Ms. D. M. Kulkarni,Thursday,13:15 pm - 14:15 pm,IT3,"AC:B Lab / EEL-1 Batch A,C","MB 604/611 / MB 407B, MB 408B",Lab
+Ms. S. P. Aundhkar,Thursday,13:15 pm - 14:15 pm,IT3,"AC:B Lab / EEL-1 Batch A,C","MB 604/611 / MB 407B, MB 408B",Lab
+Ms. R. M. Kedar,Friday,8:00 am - 9:00 am,IT3,BXT (Basics of Electronics Technology),AC 403,Theory
+Ms. S. A. Mashalkar,Friday,9:00 am- 10:00 am,IT3,GM (Geomatics),AC 403,Theory
+Ms. D. S. Sisodia,Friday,10:30 am - 11:30 am,IT3,M-I (Engineering Mathematics I),AC 403,Theory
+Ms. D. M. Kulkarni,Friday,11:30 am - 12:30 pm,IT3,AC (Applied Chemistry),AC 403,Theory
+Ms. D. M. Kulkarni,Friday,13:15 pm - 14:15 pm,IT3,"AC:C Lab / EEL-1 Batch A,B","MB 604/611 / MB 407B, MB 408B",Lab
+Ms. V. V. Parode,Friday,13:15 pm - 14:15 pm,IT3,"AC:C Lab / EEL-1 Batch A,B","MB 604/611 / MB 407B, MB 408B",Lab
+Dr. K. N. Handore,Monday,8:00 am - 9:00 am,ME1,"AC:A Lab / EEL-1 Batch B,C",MB 614/611 / MB 207A,Lab
+Ms. P. N. Wadikar,Monday,8:00 am - 9:00 am,ME1,"AC:A Lab / EEL-1 Batch B,C",MB 614/611 / MB 207A,Lab
+Mr. A. S. Shinde,Monday,10:30 am - 11:30 am,ME1,M-I (Engineering Mathematics I),AC 503,Theory
+Ms. P. S. Sawant,Monday,11:30 am - 12:30 pm,ME1,BXT (Basics of Electronics Technology),AC 503,Theory
+Ms. S. P. Aundhkar,Monday,13:15 pm - 14:15 pm,ME1,FAI Tutorial,MB 614,Tutorial
+Ms. D. M. Kulkarni,Tuesday,8:00 am - 9:00 am,ME1,"AC:B Lab / EEL-1 Batch A,C",MB 614/611 / MB 207A,Lab
+Ms. P. N. Wadikar,Tuesday,8:00 am - 9:00 am,ME1,"AC:B Lab / EEL-1 Batch A,C",MB 614/611 / MB 207A,Lab
+Ms. S. P. Aundhkar,Tuesday,10:30 am - 11:30 am,ME1,FAI (Foundation of Artificial Intelligence),AC 503,Theory
+Dr. K. N. Handore,Tuesday,11:30 am - 12:30 pm,ME1,AC (Applied Chemistry),AC 503,Theory
+Ms. R. M. Kedar,Tuesday,13:15 pm - 14:15 pm,ME1,BXT Tutorial,MB 207B & MB 301,Tutorial
+Dr. K. N. Handore,Wednesday,8:00 am - 9:00 am,ME1,"AC:C Lab / EEL-1 Batch A,B",MB 614/611 / MB 207A,Lab
+Dr. P. K. Katare,Wednesday,8:00 am - 9:00 am,ME1,"AC:C Lab / EEL-1 Batch A,B",MB 614/611 / MB 207A,Lab
+Mr. A. S. Shinde,Wednesday,10:30 am - 11:30 am,ME1,M-I (Engineering Mathematics I),AC 503,Theory
+Ms. A. D. Wangikar,Wednesday,11:30 am - 12:30 pm,ME1,FAI (Foundation of Artificial Intelligence),AC 503,Theory
+Dr. K. N. Handore,Wednesday,13:15 pm - 14:15 pm,ME1,AC (Applied Chemistry),AC 403,Theory
+Ms. A. Parmar,Thursday,8:00 am - 9:00 am,ME1,"CS:A (MB604) / CS B,C (AC 402, AC 404)","MB 604 / AC 402, AC 404",Theory
+Ms. D. M. Kulkarni,Thursday,10:30 am - 11:30 am,ME1,AC (Applied Chemistry),AC 501,Theory
+Ms. S. D. Kar,Thursday,11:30 am - 12:30 pm,ME1,GM (Geomatics),AC 501,Theory
+Mr. R. B. Kamble,Thursday,13:15 pm - 14:15 pm,ME1,GM Tutorial,MB 207A,Tutorial
+Mr. A. S. Shinde,Thursday,14:15 pm - 15:15 pm,ME1,M-I Tutorial,MB 207A,Tutorial
+Mr. S. M. Sarate,Friday,9:00 am- 10:00 am,ME1,YM (Yoga & Meditation),Ground Floor,Practical
+Ms. P. S. Sawant,Friday,10:30 am - 11:30 am,ME1,BXT (Basics of Electronics Technology),AC 502,Theory
+Ms. S. A. Mashalkar,Friday,11:30 am - 12:30 pm,ME1,GM (Geomatics),AC 502,Theory
+Mr. A. S. Shinde,Friday,13:15 pm - 14:15 pm,ME1,M-I (Engineering Mathematics I),AC 402,Theory
+Ms. S. Ghosh,Monday,8:00 am - 9:00 am,ME2,"CS:A (MB604) / CS B,C (AC 302, AC 404)","MB 604 / AC 302, AC 404",Theory
+Mr. P. P. Yenare,Monday,10:30 am - 11:30 am,ME2,"AC:C Lab / EEL-1 Batch A,B",MB 604/611 / MB 207,Lab
+Ms. S. S. Jawalkar,Monday,10:30 am - 11:30 am,ME2,"AC:C Lab / EEL-1 Batch A,B",MB 604/611 / MB 207,Lab
+Mr. P. P. Yenare,Tuesday,9:00 am- 10:00 am,ME2,YM (Yoga & Meditation),Ground Floor,Practical
+Mr. P. P. Yenare,Tuesday,10:30 am - 11:30 am,ME2,AC (Applied Chemistry),AC 504,Theory
+Ms. A. A. Bijawe,Tuesday,11:30 am - 12:30 pm,ME2,FAI (Foundation of Artificial Intelligence),AC 504,Theory
+Ms. S. D. Kar,Tuesday,13:15 pm - 14:15 pm,ME2,GM (Geomatics),AC 302,Theory
+Ms. R. M. Kedar,Tuesday,14:15 pm - 15:15 pm,ME2,BXT Tutorial,MB 207B & MB 301,Tutorial
+Ms. S. A. Mashalkar,Wednesday,8:00 am - 9:00 am,ME2,GM (Geomatics),AC 504,Theory
+Ms. R. M. Kedar,Wednesday,9:00 am- 10:00 am,ME2,BXT (Basics of Electronics Technology),AC 504,Theory
+Mr. P. P. Yenare,Wednesday,10:30 am - 11:30 am,ME2,AC (Applied Chemistry),AC 504,Theory
+Mr. S. M. Sarate,Wednesday,11:30 am - 12:30 pm,ME2,M-I (Engineering Mathematics I),AC 504,Theory
+Mr. P. P. Yenare,Thursday,8:00 am - 9:00 am,ME2,"AC:A Lab / EEL-1 Batch B,C",MB 614/611 / MB 207A,Lab
+Ms. P. N. Wadikar,Thursday,8:00 am - 9:00 am,ME2,"AC:A Lab / EEL-1 Batch B,C",MB 614/611 / MB 207A,Lab
+Mr. S. M. Sarate,Thursday,10:30 am - 11:30 am,ME2,M-I (Engineering Mathematics I),AC 502,Theory
+Dr. P. Kaswan,Thursday,11:30 am - 12:30 pm,ME2,AC (Applied Chemistry),AC 502,Theory
+Ms. R. M. Kedar,Thursday,13:15 pm - 14:15 pm,ME2,BXT (Basics of Electronics Technology),AC 503,Theory
+Ms. V. V. Parode,Thursday,14:15 pm - 15:15 pm,ME2,FAI Tutorial,MB 614,Tutorial
+Mr. P. P. Yenare,Friday,8:00 am - 9:00 am,ME2,"AC:B Lab / EEL-1 Batch A,C",MB 614/611 / MB 207A,Lab
+Ms. S. S. Jawalkar,Friday,8:00 am - 9:00 am,ME2,"AC:B Lab / EEL-1 Batch A,C",MB 614/611 / MB 207A,Lab
+Mr. S. M. Sarate,Friday,10:30 am - 11:30 am,ME2,M-I (Engineering Mathematics I),AC 503,Theory
+Ms. V. V. Parode,Friday,11:30 am - 12:30 pm,ME2,FAI (Foundation of Artificial Intelligence),AC 503,Theory
+Ms. S. D. Kar,Friday,13:15 pm - 14:15 pm,ME2,GM Tutorial,MB207A,Tutorial
+Mr. S. M. Sarate,Friday,14:15 pm - 15:15 pm,ME2,M-I Tutorial,MB207A,Tutorial

@@ -1,0 +1,47 @@
+﻿    def format_schedule_grouped(self, records, title=None):
+        """Group by time slot + subject; combine professors on one line."""
+        if not records:
+            return "No matching classes found."
+        lines = [title] if title else []
+        by_slot = {}
+        for r in records:
+            by_slot.setdefault(r["time_slot"], []).append(r)
+        for slot in sorted(by_slot.keys(), key=_slot_sort_key):
+            slot_records = by_slot[slot]
+            by_subject = {}
+            for r in slot_records:
+                key = (r["subject"], r["type"], r["room"])
+                by_subject.setdefault(key, []).append(r["professor"])
+            for (subject, ctype, room), profs in by_subject.items():
+                prof_list = ", ".join(dict.fromkeys(profs))
+                lines.append(
+                    f"\n**{slot}** — {subject} ({ctype})\n"
+                    f"  Faculty: {prof_list} | Room: {room}"
+                )
+        return "\n".join(lines) if lines else "No matching classes found."
+
+    def get_filtered_schedule(self, division=None, day=None, class_type=None, subject=None):
+        records = self.query(division=division, day=day, class_type=class_type,
+                             subject=subject, limit=100)
+        parts = []
+        if class_type:
+            parts.append(class_type + "s" if not class_type.endswith("s") else class_type)
+        if division:
+            parts.append(division)
+        if day:
+            parts.append(f"on {day}")
+        title = "**" + " ".join(parts) + f"** ({len(records)} session{'s' if len(records) != 1 else ''}):"
+        return self.format_schedule_grouped(records, title=title)
+
+    def get_day_overview(self, day, division=None, class_type=None):
+        records = self.query(division=division, day=day, class_type=class_type, limit=100)
+        if not records:
+            label = day + (f" ({division})" if division else "")
+            if class_type:
+                label += f" — {class_type} only"
+            return f"No classes found for {label}."
+        title = f"**{day}**" + (f" ({division})" if division else "")
+        if class_type:
+            title += f" — {class_type} only"
+        title += f" ({len(records)} classes):"
+        return self.format_schedule_grouped(records, title=title)
