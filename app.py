@@ -1,15 +1,12 @@
-﻿"""College Timetable AI Chatbot — Streamlit app."""
-import os
+"""College Timetable AI Chatbot — Streamlit app."""
 from pathlib import Path
 import streamlit as st
 import pandas as pd
-from dotenv import load_dotenv
 from timetable import TimetableStore
-from chatbot import TimetableChatbot, detect_provider
-
-load_dotenv(Path(__file__).parent / ".env")
+from chatbot import TimetableChatbot, detect_ollama, DEFAULT_MODEL
 
 st.set_page_config(page_title="Timetable Assistant", page_icon="📅", layout="wide")
+
 
 def get_store():
     store = st.session_state.get("timetable_store")
@@ -17,32 +14,17 @@ def get_store():
         st.session_state.timetable_store = TimetableStore()
     return st.session_state.timetable_store
 
-def apply_ai_settings():
-    """Apply sidebar API keys to environment for this session."""
-    if st.session_state.get("gemini_key"):
-        os.environ["GEMINI_API_KEY"] = st.session_state["gemini_key"]
-    if st.session_state.get("openai_key"):
-        os.environ["OPENAI_API_KEY"] = st.session_state["openai_key"]
-    os.environ["LLM_PROVIDER"] = st.session_state.get("llm_provider", "auto")
 
 def get_bot() -> TimetableChatbot:
-    apply_ai_settings()
-    provider = st.session_state.get("llm_provider", "auto")
-    if provider == "auto":
-        resolved = detect_provider()
-    else:
-        resolved = provider if provider in ("openai", "gemini") else detect_provider()
-    return TimetableChatbot(get_store(), provider=resolved)
+    model = st.session_state.get("ollama_model", DEFAULT_MODEL)
+    return TimetableChatbot(get_store(), model=model)
 
-# Init session defaults from .env
-if "gemini_key" not in st.session_state:
-    st.session_state.gemini_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY") or ""
-if "openai_key" not in st.session_state:
-    st.session_state.openai_key = os.getenv("OPENAI_API_KEY") or ""
-if "llm_provider" not in st.session_state:
-    st.session_state.llm_provider = os.getenv("LLM_PROVIDER", "auto")
 
 store = get_store()
+
+# Init status once per session
+if "ai_status" not in st.session_state:
+    st.session_state.ai_status = get_bot().get_status()
 
 # --- Sidebar ---
 with st.sidebar:
@@ -52,35 +34,31 @@ with st.sidebar:
     view_mode = st.radio("View", ["Chat", "Grid", "List", "Edit"], horizontal=True)
 
     st.divider()
-    st.subheader("🤖 AI Settings")
-    st.session_state.llm_provider = st.selectbox(
-        "Provider",
-        ["auto", "gemini", "openai"],
-        index=["auto", "gemini", "openai"].index(st.session_state.llm_provider)
-        if st.session_state.llm_provider in ("auto", "gemini", "openai") else 0,
-        format_func=lambda x: {"auto": "Auto (prefer Gemini)", "gemini": "Google Gemini", "openai": "OpenAI GPT"}[x],
-    )
-    st.session_state.gemini_key = st.text_input(
-        "Gemini API key",
-        value=st.session_state.gemini_key,
-        type="password",
-        help="Free key at aistudio.google.com/apikey",
-    )
-    st.session_state.openai_key = st.text_input(
-        "OpenAI API key",
-        value=st.session_state.openai_key,
-        type="password",
-        help="Key from platform.openai.com",
-    )
 
-    bot = get_bot()
-    mode = bot.provider_label()
-    if bot.provider:
-        st.success(f"🟢 {mode}")
+    # ── AI Model status ───────────────────────────────────────────────────
+    st.subheader("🤖 AI Model")
+    status = st.session_state.ai_status
+    
+    if status["active_provider"] == "ollama":
+        models = status["ollama"]["models"] or [DEFAULT_MODEL]
+        default_idx = next((i for i, m in enumerate(models) if "llama3.2" in m or m == DEFAULT_MODEL), 0)
+        selected = st.selectbox("Model", models, index=default_idx, key="ollama_model", help="Switch between installed Ollama models")
+        st.success(f"🟢 Ollama connected · {selected}")
+    elif status["active_provider"] == "groq":
+        st.success("🟢 Groq connected (Cloud)")
     else:
-        st.warning(f"🟡 {mode}")
+        st.warning("🟡 AI offline — using rule-based mode")
+        st.caption("Add GROQ_API_KEY to secrets or install [Ollama](https://ollama.com) locally.")
+
+    if st.button("🔁 Refresh AI status"):
+        bot = get_bot()
+        bot.refresh_status()
+        st.session_state.ai_status = bot.get_status()
+        st.rerun()
 
     st.divider()
+
+    # ── Filters ─────────────────────────────────────────────────────────
     st.subheader("Filters")
     sel_division = st.selectbox("Division", ["All"] + store.divisions, index=0)
     sel_day = st.selectbox("Day", ["All"] + store.days, index=0)
@@ -99,7 +77,12 @@ with st.sidebar:
 
 # --- Header ---
 st.title("🎓 College Timetable Assistant")
-st.markdown("Ask questions in plain English — powered by Gemini or GPT.")
+if st.session_state.ai_status["active_provider"] != "offline":
+    provider = st.session_state.ai_status["active_provider"]
+    model_name = st.session_state.get("ollama_model", DEFAULT_MODEL) if provider == "ollama" else "Groq Cloud"
+    st.markdown(f"Powered by **{model_name}** — ask anything in plain English.")
+else:
+    st.markdown("Ask questions in plain English about your timetable. *(Connect Ollama or Groq for full AI support.)*")
 
 # --- Main content ---
 if view_mode == "Chat":
@@ -111,12 +94,13 @@ if view_mode == "Chat":
             st.session_state.messages = [{
                 "role": "assistant",
                 "content": (
-                    "Hi! I can **query** and **edit** your timetable (works without API key):\n\n"
-                    "**Find:** *Find CE2 Friday labs*\n"
-                    "**Add:** *Add class AD1 Monday 10:00 am - 11:00 am, subject AP, professor Dr. X, room AC 301*\n"
-                    "**Update:** *Update id 93 room to AC 401*\n"
-                    "**Delete:** *Delete id 113*\n"
-                    "**Replace:** *Replace CE2 BET with AP*"
+                    "Hi! I can **query** and **edit** your timetable.\n\n"
+                    "Try asking naturally:\n"
+                    "- *What labs does CE2 have on Friday?*\n"
+                    "- *Who teaches IT1 on Monday morning?*\n"
+                    "- *Show me Dr. Sharma's full schedule*\n"
+                    "- *Add a Theory class for AD1 on Tuesday at 11am, subject OS, professor Dr. Mehta, room AC301*\n"
+                    "- *Delete id 42*"
                 ),
             }]
 
@@ -138,10 +122,7 @@ if view_mode == "Chat":
                     try:
                         reply = get_bot().chat(prompt, history)
                     except Exception as exc:
-                        reply = (
-                            f"Sorry, something went wrong: {exc}\n\n"
-                            "Try restarting the app. Gemini now uses REST (no cygrpc DLL needed)."
-                        )
+                        reply = f"Sorry, something went wrong: {exc}"
                 st.markdown(reply)
             st.session_state.messages.append({"role": "assistant", "content": reply})
 
@@ -259,9 +240,3 @@ elif view_mode == "Edit":
                     st.rerun()
         else:
             st.info("No entries to delete.")
-
-
-
-
-
-

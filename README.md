@@ -1,53 +1,51 @@
-﻿# College Timetable AI Chatbot
+# College Timetable Chatbot
 
 An AI-powered chatbot for browsing, querying, and editing your college timetable.
-Supports **Google Gemini** and **OpenAI GPT** for natural language questions.
+Powered by **Ollama** (local LLM — no API key, no internet required).
 
 ## Features
 
-- **AI Chat** — Ask in plain English ("I'm in AD1, what's on Monday?")
-- **Gemini or GPT** — Choose provider in sidebar or `.env`
+- **Natural Language Chat** — Ask anything: *"What labs does CE2 have on Friday?"*, *"Who teaches IT1 Monday morning?"*, *"Show Dr. Sharma's full schedule"*
+- **Full Edit via Chat** — Add, update, delete, replace entries in plain English
 - **Grid View** — Weekly timetable grid per division
 - **List View** — Filterable table with search
-- **Edit Mode** — Add, update, or delete entries
+- **Edit Mode** — Form-based add/update/delete
+- **Offline fallback** — Rule-based mode works without Ollama
 
 ## Quick Start
 
+### 1. Install Ollama
+Download from https://ollama.com and install it.
+
+### 2. Pull a model
+```powershell
+ollama pull llama3.2
+```
+*(One-time download, ~2GB. With your specs you can also try `llama3.1:8b` for even better quality.)*
+
+### 3. Run the chatbot
 ```powershell
 cd d:\timetable-chatbot
 py -m pip install -r requirements.txt
-copy .env.example .env
 py -m streamlit run app.py
 ```
-
 Or double-click **`run.bat`**.
 
 Open http://localhost:8501
 
-## API Keys (pick one or both)
+The sidebar shows 🟢 when Ollama is connected, 🟡 when offline (rule-based fallback).
 
-### Gemini (recommended — free tier)
-1. Get a key at https://aistudio.google.com/apikey
-2. Add to `.env`: `GEMINI_API_KEY=your-key`
-3. Or paste it in the **AI Settings** sidebar when the app is running
+## Example Queries
 
-### OpenAI GPT
-1. Get a key at https://platform.openai.com/api-keys
-2. Add to `.env`: `OPENAI_API_KEY=sk-your-key`
-3. Or paste it in the sidebar
+- *"What's happening in CE2 tomorrow?"*
+- *"Do IT1 students have anything after lunch on Wednesday?"*
+- *"Who's free on Friday morning in room AC301?"*
+- *"Show me all labs for ME1 this week"*
+- *"Which professor teaches the most classes?"*
 
-Set `LLM_PROVIDER=gemini` or `LLM_PROVIDER=openai` to force a provider.
-Default `auto` prefers Gemini if both keys are set.
+## Example Edits (via chat)
 
-## Example Questions
-
-- "I'm in AD1 — what classes do I have on Monday?"
-- "When is the physics lab for CE2?"
-- "Who teaches math in IT3?"
-- "Show all Friday tutorials for ME1"
-- "What's Dr. Dhabekar teaching this week?"
-
-## Without an API key
-
-Basic pattern matching still works for simple queries like "AD1 Monday schedule".
-Add a Gemini or OpenAI key for full natural language understanding.
+- *"Add a Theory class for AD1 on Tuesday at 11am, subject OS, professor Dr. Mehta, room AC301"*
+- *"Update id 93 room to AC 401"*
+- *"Delete id 113"*
+- *"Replace CE2 BET with AP"*

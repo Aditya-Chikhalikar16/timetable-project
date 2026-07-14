@@ -1,8 +1,7 @@
-﻿"""AI chatbot with OpenAI (GPT) and Google Gemini (REST) support."""
+"""Timetable chatbot — Ollama LLM with rule-based fallback."""
 from __future__ import annotations
 
 import json
-import os
 import re
 import urllib.error
 import urllib.request
@@ -11,197 +10,163 @@ from typing import Any
 from timetable import TimetableStore
 from edit_parser import handle_edit_command, is_edit_command, format_edit_result
 
-SYSTEM_PROMPT = """You are a friendly college timetable assistant.
+import os
+OLLAMA_BASE = "http://localhost:11434"
+DEFAULT_MODEL = "llama3.2"
+GROQ_MODEL = "llama-3.2-3b-preview"
+GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
 
-CRITICAL RULES:
-1. Use tools to look up schedule data — never guess.
-2. After receiving tool results, write a SHORT direct answer. Do NOT dump the full raw listing unless user asks for all slots/classes of someone.
-3. Answer ONLY what the user asked.
-4. For professor name queries, use partial names (e.g. 'Kolambe' matches 'Ms. N. D. Kolambe').
-5. Only show a full weekly timetable when the user explicitly asks for "full timetable".
-6. When user asks for labs/tutorials/theory/practicals, ALWAYS pass class_type filter.
-7. Do NOT include Theory when user asked for Labs, or vice versa.
-8. EDITING: You CAN add, update, and delete timetable entries via tools. Changes save to CSV immediately.
-9. Before update/delete, use find_class if the entry is ambiguous. Confirm what changed after edits.
-10. Class type field is: Theory, Lab, Tutorial, or Practical.
+# ---------------------------------------------------------------------------
+# Prompts
+# ---------------------------------------------------------------------------
 
-Divisions: AD1-3, CE1-3, ET1-3, EL, IT1-3, ME1-2."""
+EXTRACT_SYSTEM = """You are a college timetable assistant. Your job is to parse the user's message and return a JSON action plan.
 
-TOOL_DEFINITIONS: list[dict[str, Any]] = [
-    {
-        "name": "query_timetable",
-        "description": "Search classes with filters. Use time_slot for a specific period.",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "division": {"type": "string"}, "day": {"type": "string"},
-                "time_slot": {"type": "string"}, "subject": {"type": "string"},
-                "professor": {"type": "string", "description": "Partial name ok e.g. Kolambe"},
-                "class_type": {"type": "string", "enum": ["Theory", "Lab", "Tutorial", "Practical"]},
-                "room": {"type": "string"}, "limit": {"type": "integer"},
-            },
-        },
-    },
-    {
-        "name": "who_teaches_at",
-        "description": "Faculty teaching a division at a specific time.",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "division": {"type": "string"}, "time_slot": {"type": "string"}, "day": {"type": "string"},
-            },
-            "required": ["division", "time_slot"],
-        },
-    },
-    {
-        "name": "get_day_schedule",
-        "description": "Schedule for one day. Pass class_type when user asks for labs/tutorials/theory only.",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "day": {"type": "string"},
-                "division": {"type": "string"},
-                "class_type": {"type": "string", "enum": ["Theory", "Lab", "Tutorial", "Practical"]},
-            },
-            "required": ["day"],
-        },
-    },
-    {
-        "name": "get_filtered_schedule",
-        "description": "Best for 'all labs of CE2 on Friday' — filter by division, day, class type, subject.",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "division": {"type": "string"},
-                "day": {"type": "string"},
-                "class_type": {"type": "string", "enum": ["Theory", "Lab", "Tutorial", "Practical"]},
-                "subject": {"type": "string"},
-            },
-        },
-    },
-    {
-        "name": "get_division_timetable",
-        "description": "Full weekly timetable only when user wants entire week.",
-        "parameters": {
-            "type": "object",
-            "properties": {"division": {"type": "string"}},
-            "required": ["division"],
-        },
-    },
-    {
-        "name": "get_professor_schedule",
-        "description": "All classes for a professor. Use for 'all slots of X' questions. Partial names ok.",
-        "parameters": {
-            "type": "object",
-            "properties": {"professor": {"type": "string"}},
-            "required": ["professor"],
-        },
-    },
+The timetable has these divisions: AD1, AD2, AD3, CE1, CE2, CE3, ET1, ET2, ET3, EL, IT1, IT2, IT3, ME1, ME2.
+Days: Monday, Tuesday, Wednesday, Thursday, Friday.
+Class types: Theory, Lab, Tutorial, Practical.
 
-    {
-        "name": "find_class",
-        "description": "Find entries with entry_id for editing/deleting. Use before update or delete if unsure.",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "division": {"type": "string"}, "day": {"type": "string"},
-                "time_slot": {"type": "string"}, "subject": {"type": "string"},
-                "professor": {"type": "string"}, "class_type": {"type": "string", "enum": ["Theory", "Lab", "Tutorial", "Practical"]},
-                "limit": {"type": "integer"},
-            },
-        },
-    },
-    {
-        "name": "add_class",
-        "description": "Add a new class to the timetable and save.",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "professor": {"type": "string"}, "day": {"type": "string"},
-                "time_slot": {"type": "string"}, "division": {"type": "string"},
-                "subject": {"type": "string"}, "room": {"type": "string"},
-                "class_type": {"type": "string", "enum": ["Theory", "Lab", "Tutorial", "Practical"]},
-            },
-            "required": ["professor", "day", "time_slot", "division", "subject"],
-        },
-    },
-    {
-        "name": "update_class",
-        "description": "Update an existing class. Pass entry_id OR search fields (division, day, time_slot, subject).",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "entry_id": {"type": "integer"},
-                "division": {"type": "string"}, "day": {"type": "string"},
-                "time_slot": {"type": "string"}, "subject": {"type": "string"}, "professor": {"type": "string"},
-                "new_professor": {"type": "string"}, "new_day": {"type": "string"},
-                "new_time_slot": {"type": "string"}, "new_division": {"type": "string"},
-                "new_subject": {"type": "string"}, "new_room": {"type": "string"},
-                "new_type": {"type": "string", "enum": ["Theory", "Lab", "Tutorial", "Practical"]},
-            },
-        },
-    },
-    {
-        "name": "replace_subject",
-        "description": "Replace all classes of one subject with another in a division e.g. replace BET with AP in CE2.",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "division": {"type": "string"},
-                "old_subject": {"type": "string", "description": "Subject to replace e.g. BET"},
-                "new_subject": {"type": "string", "description": "New subject e.g. AP"},
-                "day": {"type": "string"},
-            },
-            "required": ["old_subject", "new_subject"],
-        },
-    },
-    {
-        "name": "delete_class",
-        "description": "Delete a class from the timetable. Pass entry_id OR search fields to identify it.",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "entry_id": {"type": "integer"},
-                "division": {"type": "string"}, "day": {"type": "string"},
-                "time_slot": {"type": "string"}, "subject": {"type": "string"}, "professor": {"type": "string"},
-            },
-        },
-    },
-    {
-        "name": "list_divisions",
-        "description": "List all divisions.",
-        "parameters": {"type": "object", "properties": {}},
-    },
-    {
-        "name": "get_timetable_summary",
-        "description": "Overview stats.",
-        "parameters": {"type": "object", "properties": {}},
-    },
-]
+CONVERSATION CONTEXT — CRITICAL:
+You will receive the conversation history before the current message. Use it to resolve any references:
+- Pronouns: "they", "them", "it", "those", "that" → resolve from prior messages
+- Implicit references: "same day", "same division", "that professor", "those labs" → carry over from prior context
+- Follow-up questions: "what about Monday?", "and for CE1?", "how many are there?" → inherit the division/day/type from the last relevant exchange
+- If the user says "same" or "again" or gives a partial query, fill in the blanks from prior context
 
-OPENAI_TOOLS = [{"type": "function", "function": tool} for tool in TOOL_DEFINITIONS]
-GEMINI_TOOLS = [{"functionDeclarations": TOOL_DEFINITIONS}]
-SYNTHESIS_HINT = (
-    "Summarize the tool results in a clear, concise answer. "
-    "Do not paste raw data dumps unless the user asked for all slots/classes."
-)
+Respond with ONLY valid JSON — no prose, no markdown fences. Use this schema:
+
+{
+  "intent": "<one of: query_timetable | get_day_schedule | get_filtered_schedule | get_professor_schedule | get_division_timetable | who_teaches_at | list_divisions | get_timetable_summary | add_class | update_class | delete_class | replace_subject | find_class | chitchat>",
+  "division": "<division or null>",
+  "day": "<day or null>",
+  "time_slot": "<time slot string or null>",
+  "subject": "<subject code or null>",
+  "professor": "<professor name or partial name or null>",
+  "class_type": "<Theory|Lab|Tutorial|Practical or null>",
+  "room": "<room or null>",
+  "entry_id": <integer or null>,
+  "new_professor": "<new value or null>",
+  "new_day": "<new value or null>",
+  "new_time_slot": "<new value or null>",
+  "new_division": "<new value or null>",
+  "new_subject": "<new value or null>",
+  "new_room": "<new value or null>",
+  "new_type": "<new value or null>",
+  "old_subject": "<for replace_subject: subject to replace or null>",
+  "new_subject_replace": "<for replace_subject: new subject or null>"
+}
+
+Rules:
+- ALWAYS resolve references from conversation history before filling JSON fields.
+- For vague time words like "morning" map to approximate slots (9:00 am - 10:00 am range), "afternoon" to 1pm+, "after lunch" to 1pm+.
+- "tomorrow", "today" etc. — leave day as null (you don't know the actual date).
+- For chitchat (greetings, thanks, unrelated questions) use intent "chitchat".
+- Normalize division names: "CE 2" → "CE2", "it1" → "IT1".
+- If the user says "labs" without specifying Theory/Lab/etc., set class_type to "Lab"."""
+
+ANSWER_SYSTEM = """You are a friendly college timetable assistant.
+You have retrieved data from the timetable database to answer the user's latest question.
+You also have the conversation history so you can naturally refer to what was discussed before.
+
+Guidelines:
+- Write a clear, concise, natural-language answer based ONLY on the retrieved data.
+- Reference prior conversation naturally when relevant (e.g. "As I mentioned...", "Unlike CE2 which had 3 labs, CE1 has...").
+- Do not guess or invent any timetable information not present in the retrieved data.
+- If the data is empty, say so naturally.
+- Keep answers brief unless the user asked for everything."""
 
 
-def detect_provider() -> str | None:
-    preferred = os.getenv("LLM_PROVIDER", "auto").lower()
-    has_openai = bool(os.getenv("OPENAI_API_KEY"))
-    has_gemini = bool(os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY"))
-    if preferred == "openai" and has_openai:
-        return "openai"
-    if preferred in ("gemini", "google") and has_gemini:
-        return "gemini"
-    if preferred == "auto":
-        if has_gemini:
-            return "gemini"
-        if has_openai:
-            return "openai"
-    return None
+# ---------------------------------------------------------------------------
+# Ollama helpers
+# ---------------------------------------------------------------------------
 
+def detect_ollama() -> dict:
+    """Return {"available": bool, "models": [...]}"""
+    try:
+        req = urllib.request.Request(f"{OLLAMA_BASE}/api/tags", method="GET")
+        with urllib.request.urlopen(req, timeout=3) as resp:
+            data = json.loads(resp.read().decode())
+            models = [m["name"] for m in data.get("models", [])]
+            return {"available": True, "models": models}
+    except Exception:
+        return {"available": False, "models": []}
+
+
+def _ollama_chat(model: str, messages: list[dict], temperature: float = 0.2, timeout: int = 60) -> str:
+    """Call Ollama /api/chat and return the assistant content string."""
+    body = {
+        "model": model,
+        "messages": messages,
+        "stream": False,
+        "options": {"temperature": temperature},
+    }
+    req = urllib.request.Request(
+        f"{OLLAMA_BASE}/api/chat",
+        data=json.dumps(body).encode("utf-8"),
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+            return data.get("message", {}).get("content", "").strip()
+    except urllib.error.URLError as e:
+        raise RuntimeError(f"Ollama not reachable: {e}") from e
+
+def detect_groq() -> dict:
+    """Return {'available': bool, 'api_key_set': bool}"""
+    import streamlit as st
+    api_key = os.environ.get("GROQ_API_KEY")
+    if not api_key:
+        try:
+            api_key = st.secrets.get("GROQ_API_KEY")
+        except Exception:
+            pass
+    return {"available": bool(api_key), "api_key_set": bool(api_key)}
+
+def _groq_chat(messages: list[dict], temperature: float = 0.2, timeout: int = 60) -> str:
+    """Call Groq API and return the assistant content string."""
+    import streamlit as st
+    api_key = os.environ.get("GROQ_API_KEY")
+    if not api_key:
+        try:
+            api_key = st.secrets.get("GROQ_API_KEY")
+        except Exception:
+            pass
+            
+    if not api_key:
+        raise RuntimeError("GROQ_API_KEY not found.")
+        
+    body = {
+        "model": GROQ_MODEL,
+        "messages": messages,
+        "temperature": temperature,
+        "stream": False
+    }
+    
+    req = urllib.request.Request(
+        GROQ_API_URL,
+        data=json.dumps(body).encode("utf-8"),
+        headers={
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {api_key}"
+        },
+        method="POST"
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+            return data.get("choices", [{}])[0].get("message", {}).get("content", "").strip()
+    except urllib.error.URLError as e:
+        if hasattr(e, 'read'):
+            err_data = e.read().decode('utf-8')
+            raise RuntimeError(f"Groq API error: {err_data}") from e
+        raise RuntimeError(f"Groq not reachable: {e}") from e
+
+
+# ---------------------------------------------------------------------------
+# Rule-based helpers (kept as fallback)
+# ---------------------------------------------------------------------------
 
 def _extract_time(msg: str) -> str | None:
     m = re.search(
@@ -237,25 +202,6 @@ def _extract_class_type(msg: str) -> str | None:
         return "Theory"
     return None
 
-def _extract_replace(msg: str):
-    m = re.search(
-        r"replace\s+(?:(ad[123]|ce[123]|et[123]|el|it[123]|me[12])\s+)?"
-        r"(\w+)\s+(?:class(?:es)?|subject)?\s+with\s+(\w+)\s*(?:class(?:es)?|subject)?",
-        msg, re.I,
-    )
-    if m:
-        return {
-            "division": m.group(1).upper() if m.group(1) else None,
-            "old_subject": m.group(2),
-            "new_subject": m.group(3),
-        }
-    m = re.search(
-        r"replace\s+(\w+)\s+with\s+(\w+)\s+in\s+(ad[123]|ce[123]|et[123]|el|it[123]|me[12])",
-        msg, re.I,
-    )
-    if m:
-        return {"old_subject": m.group(1), "new_subject": m.group(2), "division": m.group(3).upper()}
-    return None
 
 def _extract_professor_query(msg: str) -> str | None:
     patterns = [
@@ -272,260 +218,268 @@ def _extract_professor_query(msg: str) -> str | None:
     return None
 
 
+# ---------------------------------------------------------------------------
+# Main chatbot class
+# ---------------------------------------------------------------------------
+
 class TimetableChatbot:
-    def __init__(self, store: TimetableStore | None = None, provider: str | None = None):
+    def __init__(self, store: TimetableStore | None = None, model: str | None = None, provider: str = "auto", **kwargs):
         self.store = store or TimetableStore()
-        self.provider = provider or detect_provider()
-        self._openai_client = None
+        self.model = model or DEFAULT_MODEL
+        self.provider = provider  # "auto", "ollama", or "groq"
+        self._ollama_status: dict | None = None
+        self._groq_status: dict | None = None
+
+    # ------------------------------------------------------------------
+    # Public API
+    # ------------------------------------------------------------------
+
+    def get_status(self) -> dict:
+        if self._ollama_status is None:
+            self._ollama_status = detect_ollama()
+        if self._groq_status is None:
+            self._groq_status = detect_groq()
+            
+        active_provider = "offline"
+        if self.provider == "groq" and self._groq_status["available"]:
+            active_provider = "groq"
+        elif self.provider == "ollama" and self._ollama_status["available"]:
+            active_provider = "ollama"
+        elif self.provider == "auto":
+            if self._ollama_status["available"]:
+                active_provider = "ollama"
+            elif self._groq_status["available"]:
+                active_provider = "groq"
+                
+        return {
+            "ollama": self._ollama_status,
+            "groq": self._groq_status,
+            "active_provider": active_provider
+        }
+
+    def is_ai_available(self) -> bool:
+        return self.get_status()["active_provider"] != "offline"
 
     def provider_label(self) -> str:
-        if self.provider == "openai":
-            return f"GPT ({os.getenv('OPENAI_MODEL', 'gpt-4o-mini')})"
-        if self.provider == "gemini":
-            return f"Gemini ({os.getenv('GEMINI_MODEL', 'gemini-2.0-flash')})"
-        return "Rule-based (no API key)"
+        status = self.get_status()
+        active = status["active_provider"]
+        if active == "ollama":
+            return f"Ollama · {self.model}"
+        elif active == "groq":
+            return f"Groq · {GROQ_MODEL}"
+        return "Rule-based (offline)"
 
-    def _run_tool(self, name: str, args: dict, as_json: bool = True) -> str:
-        if name == "who_teaches_at":
-            text = self.store.answer_faculty_at_time(args["division"], args["time_slot"], args.get("day"))
-            payload = {"answer": text, "matches": self.store.query(
-                division=args["division"], day=args.get("day"), time_slot=args["time_slot"], limit=10)}
-            return json.dumps(payload, default=str) if as_json else text
-
-        if name == "query_timetable":
-            records = self.store.query(
-                division=args.get("division"), day=args.get("day"), time_slot=args.get("time_slot"),
-                subject=args.get("subject"), professor=args.get("professor"),
-                class_type=args.get("class_type"), room=args.get("room"), limit=args.get("limit", 15),
-            )
-            total = self.store.count(
-                division=args.get("division"), day=args.get("day"), time_slot=args.get("time_slot"),
-                subject=args.get("subject"), professor=args.get("professor"), class_type=args.get("class_type"),
-            )
-            return json.dumps({"matches": records, "total": total, "shown": len(records)}, default=str) if as_json else self.store.format_records(records, compact=True)
-
-        if name == "get_day_schedule":
-            text = self.store.get_day_overview(
-                args["day"], args.get("division"), args.get("class_type"))
-            return json.dumps({"schedule": text}) if as_json else text
-
-        if name == "get_filtered_schedule":
-            text = self.store.get_filtered_schedule(
-                division=args.get("division"), day=args.get("day"),
-                class_type=args.get("class_type"), subject=args.get("subject"))
-            return json.dumps({"schedule": text}) if as_json else text
-
-        if name == "get_division_timetable":
-            records = self.store.get_division_schedule(args["division"])
-            return json.dumps({"matches": records, "total": len(records)}, default=str) if as_json else self.store.format_records(records, compact=True)
-
-        if name == "get_professor_schedule":
-            prof = args["professor"]
-            if hasattr(self.store, "format_professor_schedule"):
-                text = self.store.format_professor_schedule(prof)
-            else:
-                records = self.store.get_professor_schedule(prof)
-                text = self.store.format_records(records, compact=True) if records else f"No classes for {prof}."
-            records = self.store.get_professor_schedule(args["professor"])
-            return json.dumps({"answer": text, "matches": records, "total": len(records)}, default=str) if as_json else text
-
-
-        if name == "find_class":
-            records = self.store.find_entries(
-                division=args.get("division"), day=args.get("day"),
-                time_slot=args.get("time_slot"), subject=args.get("subject"),
-                professor=args.get("professor"), class_type=args.get("class_type"),
-                limit=args.get("limit", 15),
-            )
-            text = self.store.format_entries_with_ids(records)
-            payload = {"matches": records, "total": len(records), "listing": text}
-            return json.dumps(payload, default=str) if as_json else text
-
-        if name == "add_class":
-            entry = self.store.add_class(
-                professor=args["professor"], day=args["day"], time_slot=args["time_slot"],
-                division=args["division"], subject=args["subject"],
-                room=args.get("room", ""), class_type=args.get("class_type", "Theory"),
-            )
-            eid = int(self.store.df["_id"].max())
-            entry["entry_id"] = eid
-            payload = {"success": True, "entry": entry, "entry_id": eid}
-            return json.dumps(payload, default=str) if as_json else format_edit_result(self.store, payload, "add")
-
-        if name == "update_class":
-            new_fields = {k: v for k, v in args.items() if k.startswith("new_") and v is not None}
-            result = self.store.update_class(
-                entry_id=args.get("entry_id"), division=args.get("division"), day=args.get("day"),
-                time_slot=args.get("time_slot"), subject=args.get("subject"), professor=args.get("professor"),
-                **new_fields,
-            )
-            return json.dumps(result, default=str) if as_json else format_edit_result(self.store, result, "update")
-
-        if name == "replace_subject":
-            result = self.store.replace_subject(
-                old_subject=args["old_subject"], new_subject=args["new_subject"],
-                division=args.get("division"), day=args.get("day"),
-            )
-            if as_json:
-                return json.dumps(result, default=str)
-            if not result.get("success"):
-                return result.get("error", "Replace failed.")
-            lines = [f"Replaced **{result['count']}** class(es):"]
-            for e in result.get("updated", []):
-                lines.append(
-                    f"- [ID {e['entry_id']}] {e['day']} {e['time_slot']} | {e['division']} | "
-                    f"{e['subject']} ({e['type']})"
-                )
-            return "\n".join(lines)
-
-        if name == "delete_class":
-            result = self.store.delete_class(
-                entry_id=args.get("entry_id"), division=args.get("division"), day=args.get("day"),
-                time_slot=args.get("time_slot"), subject=args.get("subject"), professor=args.get("professor"),
-            )
-            return json.dumps(result, default=str) if as_json else format_edit_result(self.store, result, "delete")
-
-        if name == "list_divisions":
-            return json.dumps({"divisions": self.store.divisions}) if as_json else "Available divisions: " + ", ".join(self.store.divisions)
-
-        if name == "get_timetable_summary":
-            return json.dumps(self.store.get_summary()) if as_json else str(self.store.get_summary())
-
-        return json.dumps({"error": f"Unknown tool: {name}"})
+    def refresh_status(self):
+        self._ollama_status = detect_ollama()
+        self._groq_status = detect_groq()
 
     def chat(self, user_message: str, history: list[dict] | None = None) -> str:
         if is_edit_command(user_message):
             edit_reply = handle_edit_command(self.store, user_message)
             if edit_reply:
                 return edit_reply
-        messages = list(history or [])
-        messages.append({"role": "user", "content": user_message})
-        try:
-            if self.provider == "openai":
-                return self._chat_openai(messages)
-            if self.provider == "gemini":
-                return self._chat_gemini_rest(messages)
-        except Exception as exc:
-            fallback = self._fallback_chat(user_message)
-            err = str(exc)
-            if fallback and not fallback.startswith("**Tip:**") and "Try:" not in fallback[-80:]:
-                note = "*Gemini quota exceeded — used offline mode.*" if "429" in err or "quota" in err.lower() else f"*(AI error — offline mode: {exc})*"
-                if "429" in err or "quota" in err.lower():
-                    note += " Wait a few minutes, or switch to **OpenAI** in the sidebar."
-                return f"{fallback}\n\n{note}"
-            if "429" in err or "quota" in err.lower():
-                return (
-                    "**Gemini quota exceeded** (free tier limit).\n\n"
-                    "Options:\n"
-                    "1. Wait a few minutes and retry\n"
-                    "2. Switch provider to **OpenAI** in the sidebar\n"
-                    "3. Get a new key at [aistudio.google.com/apikey](https://aistudio.google.com/apikey)"
-                )
-            raise
+
+        status = self.get_status()
+        active = status["active_provider"]
+
+        if active != "offline":
+            try:
+                return self._chat_llm(user_message, history or [], active)
+            except Exception as exc:
+                fallback = self._fallback_chat(user_message)
+                return f"{fallback}\n\n*⚠️ {active.title()} error — used offline mode: {exc}*"
+
         return self._fallback_chat(user_message)
 
-    def _gemini_generate(self, api_key: str, model: str, contents: list, use_tools: bool = True) -> dict:
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
-        body: dict[str, Any] = {
-            "systemInstruction": {"parts": [{"text": SYSTEM_PROMPT}]},
-            "contents": contents,
-        }
-        if use_tools:
-            body["tools"] = GEMINI_TOOLS
-        req = urllib.request.Request(
-            url,
-            data=json.dumps(body).encode("utf-8"),
-            headers={"Content-Type": "application/json"},
-            method="POST",
-        )
-        try:
-            with urllib.request.urlopen(req, timeout=60) as resp:
-                return json.loads(resp.read().decode("utf-8"))
-        except urllib.error.HTTPError as e:
-            detail = e.read().decode("utf-8", errors="replace")
-            raise RuntimeError(f"Gemini API error {e.code}: {detail}") from e
+    # ------------------------------------------------------------------
+    # LLM two-phase chat
+    # ------------------------------------------------------------------
 
-    def _chat_gemini_rest(self, messages: list[dict]) -> str:
-        api_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
-        if not api_key:
-            raise RuntimeError("No Gemini API key set")
-        model = os.getenv("GEMINI_MODEL", "gemini-2.0-flash")
+    def _call_llm(self, messages: list[dict], provider: str, temperature: float = 0.2) -> str:
+        if provider == "groq":
+            return _groq_chat(messages, temperature=temperature)
+        else:
+            return _ollama_chat(self.model, messages, temperature=temperature)
 
-        contents: list[dict] = []
-        for m in messages[:-1]:
-            role = "user" if m["role"] == "user" else "model"
-            contents.append({"role": role, "parts": [{"text": m["content"]}]})
-        contents.append({"role": "user", "parts": [{"text": messages[-1]["content"]}]})
+    def _chat_llm(self, user_message: str, history: list[dict], provider: str) -> str:
+        # ── Phase 1: extract intent + entities ──────────────────────────
+        extract_messages = [{"role": "system", "content": EXTRACT_SYSTEM}]
+        # Provide recent history as context (last 4 turns)
+        for m in history[-8:]:
+            if m["role"] in ("user", "assistant"):
+                extract_messages.append({"role": m["role"], "content": m["content"]})
+        extract_messages.append({"role": "user", "content": user_message})
 
-        used_tools = False
-        for _ in range(6):
-            data = self._gemini_generate(api_key, model, contents, use_tools=True)
-            candidates = data.get("candidates") or []
-            if not candidates:
-                raise RuntimeError(data.get("error", {}).get("message", "No response from Gemini"))
-            parts = candidates[0].get("content", {}).get("parts", [])
-            fn_calls = [p for p in parts if "functionCall" in p]
+        raw = self._call_llm(extract_messages, provider, temperature=0.0)
+        plan = self._parse_json_plan(raw)
 
-            if not fn_calls:
-                text = "\n".join(p.get("text", "") for p in parts if p.get("text")).strip()
-                if used_tools and (not text or self._looks_like_dump(text)):
-                    contents.append({"role": "model", "parts": parts})
-                    contents.append({"role": "user", "parts": [{"text": SYNTHESIS_HINT}]})
-                    data = self._gemini_generate(api_key, model, contents, use_tools=False)
-                    parts = data["candidates"][0]["content"]["parts"]
-                    text = "\n".join(p.get("text", "") for p in parts if p.get("text")).strip()
-                return text or "No answer found."
+        intent = plan.get("intent", "chitchat")
 
-            used_tools = True
-            contents.append({"role": "model", "parts": parts})
-            fn_parts = []
-            for p in fn_calls:
-                fc = p["functionCall"]
-                args = dict(fc.get("args") or {})
-                fn_parts.append({
-                    "functionResponse": {
-                        "name": fc["name"],
-                        "response": {"result": self._run_tool(fc["name"], args)},
-                    }
-                })
-            contents.append({"role": "user", "parts": fn_parts})
+        # Chitchat — just ask the model to reply directly
+        if intent == "chitchat":
+            return self._llm_direct(user_message, history, provider)
 
-        contents.append({"role": "user", "parts": [{"text": SYNTHESIS_HINT}]})
-        data = self._gemini_generate(api_key, model, contents, use_tools=False)
-        parts = data["candidates"][0]["content"]["parts"]
-        return "\n".join(p.get("text", "") for p in parts if p.get("text")).strip() or "Could you rephrase that?"
+        # ── Phase 2: fetch data ──────────────────────────────────────────
+        data_text = self._execute_plan(intent, plan)
 
-    def _chat_openai(self, messages: list[dict]) -> str:
-        if self._openai_client is None:
-            from openai import OpenAI
-            self._openai_client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-        model = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
-        api_messages = [{"role": "system", "content": SYSTEM_PROMPT}] + messages
-        used_tools = False
-        for _ in range(6):
-            response = self._openai_client.chat.completions.create(
-                model=model, messages=api_messages, tools=OPENAI_TOOLS, tool_choice="auto")
-            msg = response.choices[0].message
-            if msg.tool_calls:
-                used_tools = True
-                api_messages.append(msg)
-                for tc in msg.tool_calls:
-                    args = json.loads(tc.function.arguments or "{}")
-                    api_messages.append({"role": "tool", "tool_call_id": tc.id, "content": self._run_tool(tc.function.name, args)})
-            else:
-                text = msg.content or ""
-                if used_tools and self._looks_like_dump(text):
-                    return self._synthesize_openai(api_messages, model)
-                return text or "I could not generate a response."
-        return self._synthesize_openai(api_messages, model) if used_tools else "Could you rephrase that?"
+        # ── Phase 3: generate natural answer (with full history context) ──
+        answer_messages = [{"role": "system", "content": ANSWER_SYSTEM}]
+        # Include recent conversation so model can reference prior turns
+        for m in history[-8:]:
+            if m["role"] in ("user", "assistant"):
+                answer_messages.append({"role": m["role"], "content": m["content"]})
+        answer_messages.append({"role": "user", "content": (
+            f"{user_message}\n\n"
+            f"[Retrieved timetable data for this question:]\n{data_text}"
+        )})
+        return self._call_llm(answer_messages, provider, temperature=0.3)
 
-    def _synthesize_openai(self, api_messages: list, model: str) -> str:
-        api_messages.append({"role": "user", "content": SYNTHESIS_HINT})
-        response = self._openai_client.chat.completions.create(model=model, messages=api_messages)
-        return response.choices[0].message.content or "No answer found."
+    def _llm_direct(self, user_message: str, history: list[dict], provider: str) -> str:
+        """For chitchat / meta questions — reply without timetable data."""
+        messages = [
+            {"role": "system", "content": (
+                "You are a friendly college timetable assistant. "
+                "Answer naturally. If you don't know the answer, say so."
+            )},
+        ]
+        for m in history[-6:]:
+            if m["role"] in ("user", "assistant"):
+                messages.append({"role": m["role"], "content": m["content"]})
+        messages.append({"role": "user", "content": user_message})
+        return self._call_llm(messages, provider, temperature=0.5)
 
-    def _looks_like_dump(self, text: str) -> bool:
-        return text.count("•") + text.count("|") >= 3 or len(text) > 800
+    # ------------------------------------------------------------------
+    # Plan parser
+    # ------------------------------------------------------------------
+
+    def _parse_json_plan(self, raw: str) -> dict:
+        """Extract JSON from model output even if wrapped in markdown."""
+        text = raw.strip()
+        # Strip markdown code fences if present
+        text = re.sub(r"^```(?:json)?\s*", "", text, flags=re.M)
+        text = re.sub(r"```\s*$", "", text, flags=re.M)
+        text = text.strip()
+        # Find first {...} block
+        m = re.search(r"\{.*\}", text, re.DOTALL)
+        if m:
+            try:
+                return json.loads(m.group(0))
+            except json.JSONDecodeError:
+                pass
+        return {"intent": "chitchat"}
+
+    # ------------------------------------------------------------------
+    # Execute plan → fetch data from store
+    # ------------------------------------------------------------------
+
+    def _execute_plan(self, intent: str, plan: dict) -> str:
+        div = plan.get("division")
+        day = plan.get("day")
+        time_slot = plan.get("time_slot")
+        subject = plan.get("subject")
+        professor = plan.get("professor")
+        class_type = plan.get("class_type")
+        room = plan.get("room")
+        entry_id = plan.get("entry_id")
+
+        if intent == "query_timetable":
+            records = self.store.query(
+                division=div, day=day, time_slot=time_slot,
+                subject=subject, professor=professor,
+                class_type=class_type, room=room, limit=20,
+            )
+            if not records:
+                return "No matching classes found."
+            return self.store.format_records(records, compact=True)
+
+        if intent == "get_day_schedule":
+            return self.store.get_day_overview(day or "Monday", div, class_type)
+
+        if intent == "get_filtered_schedule":
+            return self.store.get_filtered_schedule(
+                division=div, day=day, class_type=class_type, subject=subject)
+
+        if intent == "get_professor_schedule":
+            if not professor:
+                return "Please specify a professor name."
+            if hasattr(self.store, "format_professor_schedule"):
+                return self.store.format_professor_schedule(professor)
+            records = self.store.get_professor_schedule(professor)
+            return self.store.format_records(records, compact=True) if records else f"No classes found for '{professor}'."
+
+        if intent == "get_division_timetable":
+            if not div:
+                return "Please specify a division."
+            records = self.store.get_division_schedule(div)
+            return self.store.format_records(records, compact=True) if records else f"No timetable found for {div}."
+
+        if intent == "who_teaches_at":
+            if not div or not time_slot:
+                return "Please specify division and time slot."
+            return self.store.answer_faculty_at_time(div, time_slot, day)
+
+        if intent == "list_divisions":
+            return "Available divisions: " + ", ".join(self.store.divisions)
+
+        if intent == "get_timetable_summary":
+            return str(self.store.get_summary())
+
+        if intent == "find_class":
+            records = self.store.find_entries(
+                division=div, day=day, time_slot=time_slot,
+                subject=subject, professor=professor, class_type=class_type, limit=15,
+            )
+            if not records:
+                return "No entries found."
+            return self.store.format_entries_with_ids(records)
+
+        if intent == "add_class":
+            if not all([professor, day, time_slot, div, subject]):
+                return "Missing required fields: professor, day, time_slot, division, subject."
+            entry = self.store.add_class(
+                professor=professor, day=day, time_slot=time_slot,
+                division=div, subject=subject,
+                room=room or "", class_type=class_type or "Theory",
+            )
+            eid = int(self.store.df["_id"].max())
+            return format_edit_result(self.store, {"success": True, "entry": entry, "entry_id": eid}, "add")
+
+        if intent == "update_class":
+            new_fields = {
+                k: plan[k] for k in ("new_professor", "new_day", "new_time_slot",
+                                      "new_division", "new_subject", "new_room", "new_type")
+                if plan.get(k)
+            }
+            result = self.store.update_class(
+                entry_id=entry_id, division=div, day=day,
+                time_slot=time_slot, subject=subject, professor=professor,
+                **new_fields,
+            )
+            return format_edit_result(self.store, result, "update")
+
+        if intent == "delete_class":
+            result = self.store.delete_class(
+                entry_id=entry_id, division=div, day=day,
+                time_slot=time_slot, subject=subject, professor=professor,
+            )
+            return format_edit_result(self.store, result, "delete")
+
+        if intent == "replace_subject":
+            old_subj = plan.get("old_subject")
+            new_subj = plan.get("new_subject_replace") or plan.get("new_subject")
+            if not old_subj or not new_subj:
+                return "Please specify the old and new subject names."
+            result = self.store.replace_subject(
+                old_subject=old_subj, new_subject=new_subj,
+                division=div, day=day,
+            )
+            return format_edit_result(self.store, result, "replace")
+
+        return "I'm not sure how to handle that request."
+
+    # ------------------------------------------------------------------
+    # Rule-based fallback
+    # ------------------------------------------------------------------
 
     def _fallback_chat(self, user_msg: str) -> str:
         msg = user_msg.lower().strip()
@@ -556,9 +510,9 @@ class TimetableChatbot:
         time_str = _extract_time(user_msg)
 
         if "division" in msg and not division:
-            return self._run_tool("list_divisions", {}, as_json=False)
+            return "Available divisions: " + ", ".join(self.store.divisions)
         if "summary" in msg or "overview" in msg:
-            return self._run_tool("get_timetable_summary", {}, as_json=False)
+            return str(self.store.get_summary())
         if division and time_str and _asks_faculty(msg):
             return self.store.answer_faculty_at_time(division, time_str, day)
         if division and time_str:
@@ -579,7 +533,7 @@ class TimetableChatbot:
                 f"- *Replace {division} BET with AP*"
             )
         return (
-            "**Edit via chat** (no API key needed):\n"
+            "**Commands you can use:**\n"
             "- *Find CE2 Friday labs*\n"
             "- *Add class AD1 Monday 10:00 am - 11:00 am, subject AP, professor Dr. X, room AC 301, type Theory*\n"
             "- *Update id 93 room to AC 401*\n"
