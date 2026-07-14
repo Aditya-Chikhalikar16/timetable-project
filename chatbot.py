@@ -13,8 +13,8 @@ from edit_parser import handle_edit_command, is_edit_command, format_edit_result
 import os
 OLLAMA_BASE = "http://localhost:11434"
 DEFAULT_MODEL = "llama3.2"
-GROQ_MODEL = "llama-3.2-3b-preview"
-GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
+GEMINI_MODEL = "gemini-2.0-flash"
+GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models"
 
 # ---------------------------------------------------------------------------
 # Prompts
@@ -113,55 +113,71 @@ def _ollama_chat(model: str, messages: list[dict], temperature: float = 0.2, tim
     except urllib.error.URLError as e:
         raise RuntimeError(f"Ollama not reachable: {e}") from e
 
-def detect_groq() -> dict:
+def detect_gemini() -> dict:
     """Return {'available': bool, 'api_key_set': bool}"""
     import streamlit as st
-    api_key = os.environ.get("GROQ_API_KEY")
+    api_key = os.environ.get("GEMINI_API_KEY")
     if not api_key:
         try:
-            api_key = st.secrets.get("GROQ_API_KEY")
+            api_key = st.secrets.get("GEMINI_API_KEY")
         except Exception:
             pass
     return {"available": bool(api_key), "api_key_set": bool(api_key)}
 
-def _groq_chat(messages: list[dict], temperature: float = 0.2, timeout: int = 60) -> str:
-    """Call Groq API and return the assistant content string."""
+def _gemini_chat(messages: list[dict], temperature: float = 0.2, timeout: int = 60) -> str:
+    """Call Google Gemini API and return the assistant content string."""
     import streamlit as st
-    api_key = os.environ.get("GROQ_API_KEY")
+    api_key = os.environ.get("GEMINI_API_KEY")
     if not api_key:
         try:
-            api_key = st.secrets.get("GROQ_API_KEY")
+            api_key = st.secrets.get("GEMINI_API_KEY")
         except Exception:
             pass
-            
+
     if not api_key:
-        raise RuntimeError("GROQ_API_KEY not found.")
-        
+        raise RuntimeError("GEMINI_API_KEY not found.")
+
+    # Convert OpenAI-style messages to Gemini format
+    system_text = ""
+    contents = []
+    for msg in messages:
+        if msg["role"] == "system":
+            system_text += msg["content"] + "\n"
+        elif msg["role"] == "user":
+            contents.append({"role": "user", "parts": [{"text": msg["content"]}]})
+        elif msg["role"] == "assistant":
+            contents.append({"role": "model", "parts": [{"text": msg["content"]}]})
+
     body = {
-        "model": GROQ_MODEL,
-        "messages": messages,
-        "temperature": temperature,
-        "stream": False
-    }
-    
-    req = urllib.request.Request(
-        GROQ_API_URL,
-        data=json.dumps(body).encode("utf-8"),
-        headers={
-            "Content-Type": "application/json",
-            "Authorization": f"Bearer {api_key}"
+        "contents": contents,
+        "generationConfig": {
+            "temperature": temperature,
         },
-        method="POST"
+    }
+    if system_text:
+        body["systemInstruction"] = {"parts": [{"text": system_text.strip()}]}
+
+    url = f"{GEMINI_API_URL}/{GEMINI_MODEL}:generateContent?key={api_key}"
+    req = urllib.request.Request(
+        url,
+        data=json.dumps(body).encode("utf-8"),
+        headers={"Content-Type": "application/json"},
+        method="POST",
     )
     try:
         with urllib.request.urlopen(req, timeout=timeout) as resp:
             data = json.loads(resp.read().decode("utf-8"))
-            return data.get("choices", [{}])[0].get("message", {}).get("content", "").strip()
+            candidates = data.get("candidates", [])
+            if candidates:
+                parts = candidates[0].get("content", {}).get("parts", [])
+                if parts:
+                    return parts[0].get("text", "").strip()
+            return ""
+    except urllib.error.HTTPError as e:
+        err_data = e.read().decode("utf-8") if hasattr(e, "read") else str(e)
+        raise RuntimeError(f"Gemini API error: {err_data}") from e
     except urllib.error.URLError as e:
-        if hasattr(e, 'read'):
-            err_data = e.read().decode('utf-8')
-            raise RuntimeError(f"Groq API error: {err_data}") from e
-        raise RuntimeError(f"Groq not reachable: {e}") from e
+        raise RuntimeError(f"Gemini not reachable: {e}") from e
 
 
 # ---------------------------------------------------------------------------
@@ -229,6 +245,7 @@ class TimetableChatbot:
         self.provider = provider  # "auto", "ollama", or "groq"
         self._ollama_status: dict | None = None
         self._groq_status: dict | None = None
+        self._gemini_status: dict | None = None
 
     # ------------------------------------------------------------------
     # Public API
@@ -237,23 +254,23 @@ class TimetableChatbot:
     def get_status(self) -> dict:
         if self._ollama_status is None:
             self._ollama_status = detect_ollama()
-        if self._groq_status is None:
-            self._groq_status = detect_groq()
+        if self._gemini_status is None:
+            self._gemini_status = detect_gemini()
             
         active_provider = "offline"
-        if self.provider == "groq" and self._groq_status["available"]:
-            active_provider = "groq"
+        if self.provider == "gemini" and self._gemini_status["available"]:
+            active_provider = "gemini"
         elif self.provider == "ollama" and self._ollama_status["available"]:
             active_provider = "ollama"
         elif self.provider == "auto":
             if self._ollama_status["available"]:
                 active_provider = "ollama"
-            elif self._groq_status["available"]:
-                active_provider = "groq"
+            elif self._gemini_status["available"]:
+                active_provider = "gemini"
                 
         return {
             "ollama": self._ollama_status,
-            "groq": self._groq_status,
+            "gemini": self._gemini_status,
             "active_provider": active_provider
         }
 
@@ -265,13 +282,13 @@ class TimetableChatbot:
         active = status["active_provider"]
         if active == "ollama":
             return f"Ollama · {self.model}"
-        elif active == "groq":
-            return f"Groq · {GROQ_MODEL}"
+        elif active == "gemini":
+            return f"Gemini · {GEMINI_MODEL}"
         return "Rule-based (offline)"
 
     def refresh_status(self):
         self._ollama_status = detect_ollama()
-        self._groq_status = detect_groq()
+        self._gemini_status = detect_gemini()
 
     def chat(self, user_message: str, history: list[dict] | None = None) -> str:
         if is_edit_command(user_message):
@@ -296,8 +313,8 @@ class TimetableChatbot:
     # ------------------------------------------------------------------
 
     def _call_llm(self, messages: list[dict], provider: str, temperature: float = 0.2) -> str:
-        if provider == "groq":
-            return _groq_chat(messages, temperature=temperature)
+        if provider == "gemini":
+            return _gemini_chat(messages, temperature=temperature)
         else:
             return _ollama_chat(self.model, messages, temperature=temperature)
 
