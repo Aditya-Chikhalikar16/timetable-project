@@ -44,11 +44,11 @@ with st.sidebar:
         default_idx = next((i for i, m in enumerate(models) if "llama3.2" in m or m == DEFAULT_MODEL), 0)
         selected = st.selectbox("Model", models, index=default_idx, key="ollama_model", help="Switch between installed Ollama models")
         st.success(f"🟢 Ollama connected · {selected}")
-    elif status["active_provider"] == "gemini":
-        st.success("🟢 Gemini connected (Cloud)")
+    elif status["active_provider"] == "groq":
+        st.success("🟢 Groq connected (Cloud)")
     else:
         st.warning("🟡 AI offline — using rule-based mode")
-        st.caption("Add GEMINI_API_KEY to secrets or install [Ollama](https://ollama.com) locally.")
+        st.caption("Add GROQ_API_KEY to secrets or install [Ollama](https://ollama.com) locally.")
 
     if st.button("🔁 Refresh AI status"):
         bot = get_bot()
@@ -79,10 +79,10 @@ with st.sidebar:
 st.title("🎓 College Timetable Assistant")
 if st.session_state.ai_status["active_provider"] != "offline":
     provider = st.session_state.ai_status["active_provider"]
-    model_name = st.session_state.get("ollama_model", DEFAULT_MODEL) if provider == "ollama" else "Gemini Cloud"
+    model_name = st.session_state.get("ollama_model", DEFAULT_MODEL) if provider == "ollama" else "Groq Cloud"
     st.markdown(f"Powered by **{model_name}** — ask anything in plain English.")
 else:
-    st.markdown("Ask questions in plain English about your timetable. *(Connect Ollama or Gemini for full AI support.)*")
+    st.markdown("Ask questions in plain English about your timetable. *(Connect Ollama or Groq for full AI support.)*")
 
 # --- Main content ---
 if view_mode == "Chat":
