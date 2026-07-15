@@ -26,21 +26,31 @@ The timetable has these divisions: AD1, AD2, AD3, CE1, CE2, CE3, ET1, ET2, ET3, 
 Days: Monday, Tuesday, Wednesday, Thursday, Friday.
 Class types: Theory, Lab, Tutorial, Practical.
 
-CONVERSATION CONTEXT — CRITICAL:
-You will receive the conversation history before the current message. Use it to resolve any references:
+{subject_list}
+
+{professor_list}
+
+CONVERSATION CONTEXT — REFERENCE RESOLUTION:
+You will receive the conversation history before the current message. Use it to resolve references:
 - Pronouns: "they", "them", "it", "those", "that" → resolve from prior messages
-- Implicit references: "same day", "same division", "that professor", "those labs" → carry over from prior context
-- Follow-up questions: "what about Monday?", "and for CE1?", "how many are there?" → inherit the division/day/type from the last relevant exchange
-- If the user says "same" or "again" or gives a partial query, fill in the blanks from prior context
+- Implicit references: "same day", "same division", "that professor" → carry over from prior context
+- Follow-up questions: "what about Monday?", "and for CE1?" → inherit relevant fields from prior context
+
+CRITICAL — When to RESET vs INHERIT:
+- If the user introduces a NEW subject name (e.g. "what about Physics"), this is a FRESH subject query.
+  Set subject to the new value and CLEAR the professor field (set to null). Do NOT carry over the professor from a prior turn.
+- If the user introduces a NEW professor name, set professor and CLEAR subject (set to null).
+- Only inherit fields that the user does NOT explicitly change.
+- "what about X" means: query for X, keeping only division/day from context (not professor/subject).
 
 Respond with ONLY valid JSON — no prose, no markdown fences. Use this schema:
 
-{
+{{
   "intent": "<one of: query_timetable | get_day_schedule | get_filtered_schedule | get_professor_schedule | get_division_timetable | who_teaches_at | list_divisions | get_timetable_summary | add_class | update_class | delete_class | replace_subject | find_class | chitchat>",
   "division": "<division or null>",
   "day": "<day or null>",
   "time_slot": "<time slot string or null>",
-  "subject": "<subject code or null>",
+  "subject": "<subject name — use the natural name like 'Physics', 'Mathematics', 'Chemistry', etc. The system does partial matching so full codes are not needed. Set to null if not relevant.>",
   "professor": "<professor name or partial name or null>",
   "class_type": "<Theory|Lab|Tutorial|Practical or null>",
   "room": "<room or null>",
@@ -54,10 +64,13 @@ Respond with ONLY valid JSON — no prose, no markdown fences. Use this schema:
   "new_type": "<new value or null>",
   "old_subject": "<for replace_subject: subject to replace or null>",
   "new_subject_replace": "<for replace_subject: new subject or null>"
-}
+}}
 
 Rules:
 - ALWAYS resolve references from conversation history before filling JSON fields.
+- When the user names a subject, use its natural/common name. The system does partial text matching.
+  Examples: "Physics" matches "AP (Applied Physics)", "Math" matches "M-I (Engineering Mathematics I)".
+- When the user asks about a DIFFERENT topic than the previous turn, clear unrelated fields.
 - For vague time words like "morning" map to approximate slots (9:00 am - 10:00 am range), "afternoon" to 1pm+, "after lunch" to 1pm+.
 - "tomorrow", "today" etc. — leave day as null (you don't know the actual date).
 - For chitchat (greetings, thanks, unrelated questions) use intent "chitchat".
@@ -303,7 +316,23 @@ class TimetableChatbot:
 
     def _chat_llm(self, user_message: str, history: list[dict], provider: str) -> str:
         # ── Phase 1: extract intent + entities ──────────────────────────
-        extract_messages = [{"role": "system", "content": EXTRACT_SYSTEM}]
+        # Build dynamic system prompt with actual subject/professor data
+        unique_subjects = list(set(
+            re.sub(r'\s*(Tutorial|Lab).*', '', s).strip()
+            for s in self.store.subjects
+            if 'Batch' not in s and 'CS:' not in s
+        ))
+        subject_list = "Available subjects in the timetable:\n" + ", ".join(sorted(unique_subjects)[:30])
+        
+        prof_sample = self.store.professors[:20]
+        professor_list = "Some professors in the timetable:\n" + ", ".join(prof_sample)
+        
+        system_prompt = EXTRACT_SYSTEM.format(
+            subject_list=subject_list,
+            professor_list=professor_list
+        )
+        
+        extract_messages = [{"role": "system", "content": system_prompt}]
         # Provide recent history as context (last 4 turns)
         for m in history[-8:]:
             if m["role"] in ("user", "assistant"):
