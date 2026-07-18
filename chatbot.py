@@ -118,7 +118,7 @@ Rules:
 - Keep it SHORT — one or two sentences max
 - Be warm and conversational, like a friendly senior student
 - Use emoji sparingly (0-1 per message)
-- Use the provided "Parsed Intent" to understand what the user meant (who "he/she" is, what day they meant, etc.)
+- NEVER abbreviate professor names. If you mention a name from the data, use the exact full name shown.
 - If the data says "no classes found" or "not found", be helpful and suggest what they could try
 - NEVER mention specific times, rooms, subjects, or professor names UNLESS they are in the data below
 - Just write the intro, nothing else"""
