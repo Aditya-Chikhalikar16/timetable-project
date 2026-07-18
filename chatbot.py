@@ -32,7 +32,7 @@ Class types: Theory, Lab, Tutorial, Practical.
 
 {subject_list}
 
-{professor_list}
+For `professor`, extract the exact name as written by the user. Do not attempt to correct spelling. If not provided, output null.
 
 INTENT SELECTION GUIDE (pick the BEST match):
 - "get_professor_schedule" — ANY question about a professor's classes, schedule, or when/where they teach.
@@ -433,12 +433,8 @@ class TimetableChatbot:
         ))
         subject_list = "Available subjects in the timetable:\n" + ", ".join(sorted(unique_subjects)[:30])
         
-        prof_sample = self.store.professors[:20]
-        professor_list = "Some professors in the timetable:\n" + ", ".join(prof_sample)
-        
         system_prompt = EXTRACT_SYSTEM.format(
-            subject_list=subject_list,
-            professor_list=professor_list
+            subject_list=subject_list
         )
         
         extract_messages = [{"role": "system", "content": system_prompt}]
@@ -450,8 +446,11 @@ class TimetableChatbot:
 
         raw = self._call_llm(extract_messages, provider, temperature=0.0)
         plan = self._parse_json_plan(raw)
+        
+        with open("last_plan.json", "w", encoding="utf-8") as f:
+            json.dump({"raw": raw, "plan": plan}, f, indent=2)
+            
         logger.info("Phase 1 plan for %r: %s", user_message, plan)
-
         intent = plan.get("intent", "chitchat")
 
         # Chitchat — just ask the model to reply directly
