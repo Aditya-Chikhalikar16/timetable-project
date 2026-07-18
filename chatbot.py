@@ -471,13 +471,15 @@ class TimetableChatbot:
         data_text = self._execute_plan(intent, plan)
         logger.info("Phase 2 retrieved data for %r:\n%s", user_message, data_text)
 
-        # If the data layer says "not found", still let the LLM phrase it naturally
-        # so responses feel human. Only bypass for truly empty/error results.
+        # If the data layer says "not found", completely bypass the LLM for Phase 3.
+        # Small LLMs struggle to interpret '0 results' as a valid answer and always generate apologies.
         if data_text.strip() == "":
             return "I couldn't find anything matching that — could you rephrase or give me more details? 🤔", None
             
-        if "No matching classes found" in data_text and any(w in user_message.lower() for w in ["free", "empty", "occupied"]):
-            return "Good news! I couldn't find any classes scheduled, so it looks like it is completely free/unoccupied!", None
+        if "No matching classes found" in data_text:
+            if any(w in user_message.lower() for w in ["free", "empty", "occupied"]):
+                return "Good news! I couldn't find any classes scheduled, so it looks like it is completely free/unoccupied!", None
+            return "I checked the timetable, but I couldn't find any classes matching your request. You might want to try checking another day or time! 📅", None
 
         # ── Phase 3: generate natural INTRO only ──────────────────────────
         # The LLM writes ONLY a brief intro sentence. We pass ONLY the retrieved
@@ -610,7 +612,7 @@ class TimetableChatbot:
                 class_type=class_type, room=room, limit=20,
             )
             if not records:
-                return "No matching classes found. (Note: If the user was asking if the room/professor is free or unoccupied, this means they ARE completely free!)"
+                return "No matching classes found."
             return self.store.format_records(records, compact=True)
 
         if intent == "get_day_schedule":

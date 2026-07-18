@@ -1,14 +1,14 @@
 {
-  "raw": "{\n  \"intent\": \"query_timetable\",\n  \"division\": null,\n  \"day\": \"Tuesday\",\n  \"time_slot\": \"10:30 am\",\n  \"subject\": null,\n  \"professor\": null,\n  \"class_type\": null,\n  \"room\": \"AC303\",\n  \"entry_id\": null,\n  \"new_professor\": null,\n  \"new_day\": null,\n  \"new_time_slot\": null,\n  \"new_division\": null,\n  \"new_subject\": null,\n  \"new_room\": null,\n  \"new_type\": null,\n  \"old_subject\": null,\n  \"new_subject_replace\": null\n}",
+  "raw": "{\n  \"intent\": \"get_filtered_schedule\",\n  \"division\": \"CE2\",\n  \"day\": \"Tuesday\",\n  \"time_slot\": null,\n  \"subject\": \"Practicals\",\n  \"professor\": null,\n  \"class_type\": \"Practical\",\n  \"room\": null,\n  \"entry_id\": null,\n  \"new_professor\": null,\n  \"new_day\": null,\n  \"new_time_slot\": null,\n  \"new_division\": null,\n  \"new_subject\": null,\n  \"new_room\": null,\n  \"new_type\": null,\n  \"old_subject\": \"Practicals\",\n  \"new_subject_replace\": null\n}",
   "plan": {
-    "intent": "query_timetable",
-    "division": null,
+    "intent": "get_filtered_schedule",
+    "division": "CE2",
     "day": "Tuesday",
-    "time_slot": "10:30 am",
-    "subject": null,
+    "time_slot": null,
+    "subject": "Practicals",
     "professor": null,
-    "class_type": null,
-    "room": "AC303",
+    "class_type": "Practical",
+    "room": null,
     "entry_id": null,
     "new_professor": null,
     "new_day": null,
@@ -17,7 +17,7 @@
     "new_subject": null,
     "new_room": null,
     "new_type": null,
-    "old_subject": null,
+    "old_subject": "Practicals",
     "new_subject_replace": null
   }
 }
