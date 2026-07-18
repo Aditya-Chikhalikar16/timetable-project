@@ -624,6 +624,9 @@ class TimetableChatbot:
                 professor = subject
                 subject = None
 
+        if time_slot and any(w in time_slot.lower() for w in ["free", "empty", "occupied", "period"]):
+            time_slot = None
+
         if intent == "query_timetable":
             records = self.store.query(
                 division=div, day=day, time_slot=time_slot,
