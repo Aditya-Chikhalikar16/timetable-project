@@ -478,7 +478,15 @@ class TimetableChatbot:
             
         if "No matching classes found" in data_text:
             if any(w in user_message.lower() for w in ["free", "empty", "occupied"]):
-                return "Good news! I couldn't find any classes scheduled, so it looks like it is completely free/unoccupied!", None
+                import random
+                msg = random.choice([
+                    "Good news! I couldn't find any classes scheduled, so it looks like it is completely free/unoccupied! 🎉",
+                    "Looks like the coast is clear! I didn't find any classes scheduled for that time. 🚀",
+                    "You're in luck! There are no classes scheduled, so it's completely free. ✨",
+                    "It's empty! No classes are scheduled there. 🙌",
+                    "I checked the schedule and there's nothing booked! It is completely free. 📝"
+                ])
+                return msg, None
             return "I checked the timetable, but I couldn't find any classes matching your request. You might want to try checking another day or time! 📅", None
 
         # ── Phase 3: generate natural INTRO only ──────────────────────────

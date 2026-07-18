@@ -180,9 +180,13 @@ class TimetableStore:
         if room and not df.empty:
             ignore_rooms = {"room", "class", "lecture", "hall", "lab"}
             if room.lower() not in ignore_rooms:
-                norm_room = re.sub(r'[\W_]+', '', room.lower())
-                if norm_room:
-                    mask = df["room"].astype(str).apply(lambda x: norm_room in re.sub(r'[\W_]+', '', x.lower()))
+                room_parts = [re.sub(r'[\W_]+', '', r.lower()) for r in room.split(',')]
+                room_parts = [r for r in room_parts if r]
+                if room_parts:
+                    def match_room(x):
+                        x_norm = re.sub(r'[\W_]+', '', str(x).lower())
+                        return any(rp in x_norm for rp in room_parts)
+                    mask = df["room"].astype(str).apply(match_room)
                     df = df[mask]
         if time_slot and not df.empty:
             df = df[df["time_slot"].apply(lambda s: _times_match(time_slot, s))]
