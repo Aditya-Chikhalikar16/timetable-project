@@ -137,10 +137,17 @@ class TimetableStore:
         if subject and not df.empty:
             skip_subject = False
             if room:
+                # Heuristic 1: room="AC 501", subject="AC (Applied Chemistry)"
                 room_prefix_match = re.match(r'([A-Za-z]+)', room)
                 if room_prefix_match:
                     rp = room_prefix_match.group(1).lower()
                     if subject.lower().startswith(rp):
+                        skip_subject = True
+                
+                # Heuristic 2: subject="AC", room="501"
+                if re.match(r'^\d+[A-Za-z]?$', str(room).strip()):
+                    if len(subject) <= 4 and re.match(r'^[A-Za-z]+$', subject.strip()):
+                        room = f"{subject.strip()} {room.strip()}"
                         skip_subject = True
 
             if not skip_subject:
