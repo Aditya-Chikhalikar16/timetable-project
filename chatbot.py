@@ -16,7 +16,7 @@ import os
 logger = logging.getLogger(__name__)
 
 OLLAMA_BASE = "http://localhost:11434"
-DEFAULT_MODEL = "llama3.2"
+DEFAULT_MODEL = "llama3.1"
 GROQ_MODEL = "llama-3.2-3b-preview"
 GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
 

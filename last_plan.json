@@ -1,11 +1,11 @@
 {
-  "raw": "{\n  \"intent\": \"chitchat\",\n  \"division\": null,\n  \"day\": null,\n  \"time_slot\": null,\n  \"subject\": null,\n  \"professor\": null,\n  \"class_type\": null,\n  \"room\": null,\n  \"entry_id\": null,\n  \"new_professor\": null,\n  \"new_day\": null,\n  \"new_time_slot\": null,\n  \"new_division\": null,\n  \"new_subject\": null,\n  \"new_room\": null,\n  \"new_type\": null,\n  \"old_subject\": null,\n  \"new_subject_replace\": null\n}",
+  "raw": "{\n  \"intent\": \"query_timetable\",\n  \"division\": null,\n  \"day\": null,\n  \"time_slot\": null,\n  \"subject\": \"MMCOE\",  \"professor\": null, \n  \"class_type\": null, \n  \"room\": null, \n  \"entry_id\": null, \n  \"new_professor\": null, \n  \"new_day\": null, \n  \"new_time_slot\": null, \n  \"new_division\": null, \n  \"new_subject\": null, \n  \"new_room\": null, \n  \"new_type\": null, \n  \"old_subject\": null, \n  \"new_subject_replace\": null\n}",
   "plan": {
-    "intent": "chitchat",
+    "intent": "query_timetable",
     "division": null,
     "day": null,
     "time_slot": null,
-    "subject": null,
+    "subject": "MMCOE",
     "professor": null,
     "class_type": null,
     "room": null,

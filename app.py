@@ -45,7 +45,7 @@ with st.sidebar:
     
     if status["active_provider"] == "ollama":
         models = status["ollama"]["models"] or [DEFAULT_MODEL]
-        default_idx = next((i for i, m in enumerate(models) if "llama3.2" in m or m == DEFAULT_MODEL), 0)
+        default_idx = next((i for i, m in enumerate(models) if "llama3.1" in m or m == DEFAULT_MODEL), 0)
         selected = st.selectbox("Model", models, index=default_idx, key="ollama_model", help="Switch between installed Ollama models")
         st.success(f"🟢 Ollama connected · {selected}")
     elif status["active_provider"] == "groq":

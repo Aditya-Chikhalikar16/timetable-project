@@ -19,7 +19,7 @@ Download from https://ollama.com and install it.
 
 ### 2. Pull a model
 ```powershell
-ollama pull llama3.2
+ollama pull llama3.1
 ```
 *(One-time download, ~2GB. With your specs you can also try `llama3.1:8b` for even better quality.)*
 
