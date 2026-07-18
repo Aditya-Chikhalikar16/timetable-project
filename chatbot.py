@@ -102,26 +102,25 @@ Rules:
 - "tomorrow", "today" → leave day as null.
 - For chitchat (greetings, thanks, off-topic) → intent: "chitchat"."""
 
-ANSWER_SYSTEM = """You are a warm, friendly college timetable assistant talking to students and staff.
-You've just looked up information from the timetable database for them.
+ANSWER_SYSTEM = """You are a warm, friendly college timetable assistant.
 
-Your personality:
-- Be conversational and helpful, like a friendly senior student who knows the timetable well
-- Use natural, casual language — not robotic or formal
-- Add brief helpful context when relevant (e.g. "That's a pretty packed day!" or "Looks like a light morning!")
-- Use emoji sparingly to keep things friendly (1-2 per message max)
+Your job: Write ONLY a short 1-2 sentence introduction to the timetable data below.
+Do NOT list, repeat, summarize, or reformat any of the actual timetable entries.
+The entries will be shown separately — you are just writing the intro line.
 
-Rules about facts:
-- ONLY state facts that appear in the "[Retrieved timetable data]" block below
-- If the data says nothing was found, be helpful about it — suggest what they could try instead
-- NEVER invent times, rooms, professor names, or subjects not in the data
-- If the data has entries, present them in a clear, readable way
-- You can group, summarize, or highlight things to make the answer more useful
+Examples of good intros:
+- "Here's what I found for Prof. Bochare on Tuesday! 📅"
+- "Yep, CE2 has a few labs on Friday! Here they are:"
+- "I couldn't find any classes matching that — maybe try a different day or check the spelling? 🤔"
+- "Looks like a busy morning for AD1! Here's the schedule:"
 
-Formatting:
-- Use bullet points or short paragraphs, not walls of text
-- Bold important details like times, professor names, subjects
-- Keep answers concise but complete — don't cut off relevant data"""
+Rules:
+- Keep it SHORT — one or two sentences max
+- Be warm and conversational, like a friendly senior student
+- Use emoji sparingly (0-1 per message)
+- If the data says "no classes found" or "not found", be helpful and suggest what they could try
+- NEVER mention specific times, rooms, subjects, or professor names — those are in the data below
+- Just write the intro, nothing else"""
 
 
 # ---------------------------------------------------------------------------
@@ -468,17 +467,19 @@ class TimetableChatbot:
         if data_text.strip() == "":
             return "I couldn't find anything matching that — could you rephrase or give me more details? 🤔", None
 
-        # ── Phase 3: generate natural answer ──────────────────────────────
-        # Deliberately NOT including conversation history here. This phase's
-        # only job is to phrase THIS turn's retrieved data — giving it access
-        # to prior turns invites it to reference (and build on) earlier
-        # answers as if they were verified facts, even when they were wrong.
+        # ── Phase 3: generate natural INTRO only ──────────────────────────
+        # The LLM writes ONLY a brief intro sentence. The actual data is
+        # appended verbatim to prevent hallucinations / invented entries.
         answer_messages = [{"role": "system", "content": ANSWER_SYSTEM}]
         answer_messages.append({"role": "user", "content": (
-            f"{user_message}\n\n"
-            f"[Retrieved timetable data for this question:]\n{data_text}"
+            f"User asked: {user_message}\n\n"
+            f"[Retrieved timetable data for this question:]\n{data_text}\n\n"
+            "Write ONLY a short intro sentence. Do NOT list the data."
         )})
-        return self._call_llm(answer_messages, provider, temperature=0.3), None
+        intro = self._call_llm(answer_messages, provider, temperature=0.3)
+        
+        # Combine: LLM intro + raw data (never rewritten by LLM)
+        return f"{intro}\n\n{data_text}", None
 
     def _preview_delete_intent(self, plan: dict) -> tuple[str, dict | None]:
         """Resolve a delete_class intent to a specific entry and ask for confirmation."""
