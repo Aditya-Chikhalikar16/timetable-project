@@ -312,6 +312,11 @@ class TimetableChatbot:
     # Public API
     # ------------------------------------------------------------------
 
+    def refresh_status(self) -> dict:
+        self._ollama_status = detect_ollama()
+        self._groq_status = detect_groq()
+        return self.get_status()
+
     def get_status(self) -> dict:
         if self._ollama_status is None:
             self._ollama_status = detect_ollama()
