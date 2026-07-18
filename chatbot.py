@@ -477,7 +477,7 @@ class TimetableChatbot:
             return "I couldn't find anything matching that — could you rephrase or give me more details? 🤔", None
             
         if "No matching classes found" in data_text and any(w in user_message.lower() for w in ["free", "empty", "occupied"]):
-            return "Good news! I couldn't find any classes scheduled, so it looks like it is completely free/unoccupied!", plan
+            return "Good news! I couldn't find any classes scheduled, so it looks like it is completely free/unoccupied!", None
 
         # ── Phase 3: generate natural INTRO only ──────────────────────────
         # The LLM writes ONLY a brief intro sentence. We pass ONLY the retrieved
