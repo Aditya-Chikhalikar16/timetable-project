@@ -140,7 +140,7 @@ def detect_ollama() -> dict:
         return {"available": False, "models": []}
 
 
-def _ollama_chat(model: str, messages: list[dict], temperature: float = 0.2, timeout: int = 60) -> str:
+def _ollama_chat(model: str, messages: list[dict], temperature: float = 0.2, timeout: int = 60, format_json: bool = False) -> str:
     """Call Ollama /api/chat and return the assistant content string."""
     body = {
         "model": model,
@@ -148,6 +148,8 @@ def _ollama_chat(model: str, messages: list[dict], temperature: float = 0.2, tim
         "stream": False,
         "options": {"temperature": temperature},
     }
+    if format_json:
+        body["format"] = "json"
     req = urllib.request.Request(
         f"{OLLAMA_BASE}/api/chat",
         data=json.dumps(body).encode("utf-8"),
@@ -417,11 +419,12 @@ class TimetableChatbot:
     # LLM two-phase chat
     # ------------------------------------------------------------------
 
-    def _call_llm(self, messages: list[dict], provider: str, temperature: float = 0.2) -> str:
+    def _call_llm(self, messages: list[dict], provider: str, temperature: float = 0.2, format_json: bool = False) -> str:
         if provider == "groq":
+            # Just ignore format_json for Groq in this mock/stub
             return _groq_chat(messages, temperature=temperature)
         else:
-            return _ollama_chat(self.model, messages, temperature=temperature)
+            return _ollama_chat(self.model, messages, temperature=temperature, format_json=format_json)
 
     def _chat_llm(self, user_message: str, history: list[dict], provider: str) -> tuple[str, dict | None]:
         # ── Phase 1: extract intent + entities ──────────────────────────
@@ -444,7 +447,7 @@ class TimetableChatbot:
                 extract_messages.append({"role": m["role"], "content": m["content"]})
         extract_messages.append({"role": "user", "content": user_message})
 
-        raw = self._call_llm(extract_messages, provider, temperature=0.0)
+        raw = self._call_llm(extract_messages, provider, temperature=0.0, format_json=True)
         plan = self._parse_json_plan(raw)
         
         with open("last_plan.json", "w", encoding="utf-8") as f:

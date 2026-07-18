@@ -1,23 +1,6 @@
 {
-  "raw": "{\n  \"intent\": \"query_timetable\",\n  \"division\": null,\n  \"day\": \"Monday\",\n  \"time_slot\": null,\n  \"subject\": null,\n  \"professor\": \"Dr. K. N. Handore\",\n  \"class_type\": \"Theory\",\n  \"room\": null,\n  \"entry_id\": null,\n  \"new_professor\": null,\n  \"new_day\": null,\n  \"new_time_slot\": null,\n  \"new_division\": null,\n  \"new_subject\": null,\n  \"new_room\": null,\n  \"new_type\": null,\n  \"old_subject\": null,\n  \"new_subject_replace\": null\n}",
+  "raw": "Looks like Friday is going to be a busy day for Ms. U. S. Upasani's FA Performing Arts classes! \n\n- **Friday** 10:00 am - 11:00 am | EL | FA (Performing Arts) (Theory, AC 302)\n- **Friday** 14:30 pm - 15:30 pm | CE2 | FA (Performing Arts) (Tutorial, AC 303)\n- **Friday** 16:45 pm - 17:45 pm | ET1 | FA (Performing Arts) (Lab, MB 602)",
   "plan": {
-    "intent": "query_timetable",
-    "division": null,
-    "day": "Monday",
-    "time_slot": null,
-    "subject": null,
-    "professor": "Dr. K. N. Handore",
-    "class_type": "Theory",
-    "room": null,
-    "entry_id": null,
-    "new_professor": null,
-    "new_day": null,
-    "new_time_slot": null,
-    "new_division": null,
-    "new_subject": null,
-    "new_room": null,
-    "new_type": null,
-    "old_subject": null,
-    "new_subject_replace": null
+    "intent": "chitchat"
   }
 }
