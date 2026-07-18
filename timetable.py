@@ -135,16 +135,23 @@ class TimetableStore:
             if day.lower() in [d.lower() for d in self.days]:
                 df = df[df["day"].str.lower() == day.lower()]
         if subject and not df.empty:
-            mask = df["subject"].str.contains(re.escape(subject), case=False, na=False)
-            if not mask.any():
-                names = self.find_subjects(subject)
-                if names:
-                    mask = df["subject"].isin(names)
-                else:
-                    # The LLM hallucinates subjects (e.g. dumping the whole query into it).
-                    # If it completely fails to match any known subject, just ignore it.
-                    mask = pd.Series([True] * len(df), index=df.index)
-            df = df[mask]
+            skip_subject = False
+            if room:
+                room_prefix_match = re.match(r'([A-Za-z]+)', room)
+                if room_prefix_match:
+                    rp = room_prefix_match.group(1).lower()
+                    if subject.lower().startswith(rp):
+                        skip_subject = True
+
+            if not skip_subject:
+                mask = df["subject"].str.contains(re.escape(subject), case=False, na=False)
+                if not mask.any():
+                    names = self.find_subjects(subject)
+                    if names:
+                        mask = df["subject"].isin(names)
+                    else:
+                        mask = pd.Series([True] * len(df), index=df.index)
+                df = df[mask]
         if professor and not df.empty:
             mask = df["professor"].str.contains(re.escape(professor), case=False, na=False)
             if not mask.any():
