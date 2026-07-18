@@ -469,18 +469,17 @@ class TimetableChatbot:
             return "I couldn't find anything matching that — could you rephrase or give me more details? 🤔", None
 
         # ── Phase 3: generate natural INTRO only ──────────────────────────
-        # The LLM writes ONLY a brief intro sentence. The actual data is
-        # appended verbatim to prevent hallucinations / invented entries.
-        # We pass the plan so the LLM knows what pronouns resolved to.
-        clean_plan = {k: v for k, v in plan.items() if v}
+        # The LLM writes ONLY a brief intro sentence. We pass ONLY the retrieved
+        # data to prevent the LLM from trying to "correct" typos in the user's prompt.
         answer_messages = [{"role": "system", "content": ANSWER_SYSTEM}]
         answer_messages.append({"role": "user", "content": (
-            f"User asked: {user_message}\n"
-            f"Parsed Intent: {json.dumps(clean_plan)}\n\n"
             f"[Retrieved timetable data for this question:]\n{data_text}\n\n"
             "Write ONLY a short intro sentence. Do NOT list the data."
         )})
-        intro = self._call_llm(answer_messages, provider, temperature=0.3)
+        raw_intro = self._call_llm(answer_messages, provider, temperature=0.3).strip()
+        
+        # Enforce the 1-line rule strictly: throw away any hallucinated lists
+        intro = raw_intro.split("\n")[0].strip()
         
         # Combine: LLM intro + raw data (never rewritten by LLM)
         return f"{intro}\n\n{data_text}", None
