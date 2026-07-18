@@ -94,9 +94,11 @@ class TimetableStore:
                        class_type=None, room=None, time_slot=None):
         df = self.df.copy()
         if division:
-            df = df[df["division"].str.upper() == division.upper()]
+            if division.upper() in [d.upper() for d in self.divisions]:
+                df = df[df["division"].str.upper() == division.upper()]
         if day:
-            df = df[df["day"].str.lower() == day.lower()]
+            if day.lower() in [d.lower() for d in self.days]:
+                df = df[df["day"].str.lower() == day.lower()]
         if subject:
             ignore_words = {"lecture", "lectures", "class", "classes", "schedule", "timetable"}
             if subject.lower() not in ignore_words:
@@ -110,17 +112,21 @@ class TimetableStore:
             df = df[mask]
         if class_type:
             ct_lower = class_type.lower()
-            if "lecture" in ct_lower:
-                ct_lower = "theory"
+            match_type = None
+            if "lecture" in ct_lower or "theory" in ct_lower:
+                match_type = "theory"
             elif "lab" in ct_lower:
-                ct_lower = "lab"
+                match_type = "lab"
             elif "prac" in ct_lower:
-                ct_lower = "practical"
+                match_type = "practical"
             elif "tut" in ct_lower:
-                ct_lower = "tutorial"
-            df = df[df["type"].str.lower().str.contains(ct_lower, na=False)]
+                match_type = "tutorial"
+            if match_type:
+                df = df[df["type"].str.lower().str.contains(match_type, na=False)]
         if room:
-            df = df[df["room"].str.contains(re.escape(room), case=False, na=False)]
+            ignore_rooms = {"room", "class", "lecture", "hall", "lab"}
+            if room.lower() not in ignore_rooms:
+                df = df[df["room"].str.contains(re.escape(room), case=False, na=False)]
         if time_slot:
             df = df[df["time_slot"].apply(lambda s: _times_match(time_slot, s))]
         return df.sort_values(["day", "time_slot", "division"])
