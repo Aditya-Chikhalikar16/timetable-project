@@ -98,7 +98,9 @@ class TimetableStore:
         if day:
             df = df[df["day"].str.lower() == day.lower()]
         if subject:
-            df = df[df["subject"].str.contains(re.escape(subject), case=False, na=False)]
+            ignore_words = {"lecture", "lectures", "class", "classes", "schedule", "timetable"}
+            if subject.lower() not in ignore_words:
+                df = df[df["subject"].str.contains(re.escape(subject), case=False, na=False)]
         if professor:
             mask = df["professor"].str.contains(re.escape(professor), case=False, na=False)
             if not mask.any():
