@@ -55,7 +55,7 @@ INTENT SELECTION GUIDE (pick the BEST match):
 
 CONVERSATION CONTEXT:
 You will receive conversation history. Use it to resolve references:
-- "they", "them", "that professor" → resolve from prior messages
+- Pronouns: "he", "she", "his", "her", "they", "them", "that professor" → resolve professor from prior messages
 - "same day", "and for CE1?" → inherit division/day from prior context
 - "what about Physics" → NEW subject query, CLEAR professor (set null)
 - "what about Monday" → KEEP division, change day
@@ -118,8 +118,9 @@ Rules:
 - Keep it SHORT — one or two sentences max
 - Be warm and conversational, like a friendly senior student
 - Use emoji sparingly (0-1 per message)
+- Use the provided "Parsed Intent" to understand what the user meant (who "he/she" is, what day they meant, etc.)
 - If the data says "no classes found" or "not found", be helpful and suggest what they could try
-- NEVER mention specific times, rooms, subjects, or professor names — those are in the data below
+- NEVER mention specific times, rooms, subjects, or professor names UNLESS they are in the data below
 - Just write the intro, nothing else"""
 
 
@@ -470,9 +471,12 @@ class TimetableChatbot:
         # ── Phase 3: generate natural INTRO only ──────────────────────────
         # The LLM writes ONLY a brief intro sentence. The actual data is
         # appended verbatim to prevent hallucinations / invented entries.
+        # We pass the plan so the LLM knows what pronouns resolved to.
+        clean_plan = {k: v for k, v in plan.items() if v}
         answer_messages = [{"role": "system", "content": ANSWER_SYSTEM}]
         answer_messages.append({"role": "user", "content": (
-            f"User asked: {user_message}\n\n"
+            f"User asked: {user_message}\n"
+            f"Parsed Intent: {json.dumps(clean_plan)}\n\n"
             f"[Retrieved timetable data for this question:]\n{data_text}\n\n"
             "Write ONLY a short intro sentence. Do NOT list the data."
         )})
