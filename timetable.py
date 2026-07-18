@@ -74,21 +74,56 @@ class TimetableStore:
         return sorted(self.df["type"].unique().tolist())
 
     def find_professors(self, query: str) -> list[str]:
-        """Fuzzy match e.g. 'kolambe' or 'nikita kolambe' -> Ms. N. D. Kolambe."""
-        tokens = [t for t in re.split(r"\W+", query.lower()) if len(t) >= 2]
-        if not tokens:
+        """Fuzzy match e.g. 'kolambe' or 'nikita kolambe' -> Ms. N. D. Kolambe, with typo tolerance."""
+        import difflib
+        q_words = [w for w in re.split(r"\W+", query.lower()) if len(w) > 2 and w not in ('sir', 'mam', 'madam', 'prof', 'dr')]
+        if not q_words:
             return []
-        scored: list[tuple[int, str]] = []
+        scored = []
         for prof in self.professors:
-            nl = prof.lower()
-            score = sum(1 for t in tokens if t in nl)
-            if score > 0:
-                scored.append((score, prof))
+            p_words = [w for w in re.split(r"\W+", prof.lower()) if len(w) > 2 and w not in ('sir', 'mam', 'madam', 'prof', 'dr')]
+            total_score = 0
+            for qw in q_words:
+                best_match = 0
+                for pw in p_words:
+                    ratio = difflib.SequenceMatcher(None, qw, pw).ratio()
+                    if ratio > best_match:
+                        best_match = ratio
+                if best_match >= 0.7:  # Typo tolerance
+                    total_score += best_match
+            if total_score > 0:
+                scored.append((total_score, prof))
         if not scored:
             return []
-        scored.sort(key=lambda x: (-x[0], x[1]))
+        scored.sort(key=lambda x: -x[0])
         best = scored[0][0]
-        return [p for s, p in scored if s == best]
+        return [p for s, p in scored if s >= best - 0.1]
+
+    def find_subjects(self, query: str) -> list[str]:
+        """Fuzzy match subject names with typo tolerance."""
+        import difflib
+        q_words = [w for w in re.split(r"\W+", query.lower()) if len(w) > 2 and w not in ('lecture', 'lectures', 'class', 'classes', 'schedule', 'timetable')]
+        if not q_words:
+            return []
+        scored = []
+        for subj in self.subjects:
+            p_words = [w for w in re.split(r"\W+", subj.lower()) if len(w) > 2]
+            total_score = 0
+            for qw in q_words:
+                best_match = 0
+                for pw in p_words:
+                    ratio = difflib.SequenceMatcher(None, qw, pw).ratio()
+                    if ratio > best_match:
+                        best_match = ratio
+                if best_match >= 0.75:
+                    total_score += best_match
+            if total_score > 0:
+                scored.append((total_score, subj))
+        if not scored:
+            return []
+        scored.sort(key=lambda x: -x[0])
+        best = scored[0][0]
+        return [p for s, p in scored if s >= best - 0.1]
 
     def _apply_filters(self, division=None, day=None, subject=None, professor=None,
                        class_type=None, room=None, time_slot=None):
@@ -100,9 +135,16 @@ class TimetableStore:
             if day.lower() in [d.lower() for d in self.days]:
                 df = df[df["day"].str.lower() == day.lower()]
         if subject and not df.empty:
-            ignore_words = {"lecture", "lectures", "class", "classes", "schedule", "timetable"}
-            if subject.lower() not in ignore_words:
-                df = df[df["subject"].str.contains(re.escape(subject), case=False, na=False)]
+            mask = df["subject"].str.contains(re.escape(subject), case=False, na=False)
+            if not mask.any():
+                names = self.find_subjects(subject)
+                if names:
+                    mask = df["subject"].isin(names)
+                else:
+                    # The LLM hallucinates subjects (e.g. dumping the whole query into it).
+                    # If it completely fails to match any known subject, just ignore it.
+                    mask = pd.Series([True] * len(df), index=df.index)
+            df = df[mask]
         if professor and not df.empty:
             mask = df["professor"].str.contains(re.escape(professor), case=False, na=False)
             if not mask.any():

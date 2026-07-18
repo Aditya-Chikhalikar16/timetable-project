@@ -70,7 +70,7 @@ UNDERSTANDING CASUAL LANGUAGE:
 - Division names may be messy: "ce 2" → "CE2", "i.t. 1" → "IT1", "ad-3" → "AD3"
 - Misspellings: try your best to match against the professor/subject lists above
 
-IMPORTANT: When someone asks about a professor ("does X sir teach...", "X mam schedule", "when does X have class"), ALWAYS use intent "get_professor_schedule" with the professor's name. Do NOT use "who_teaches_at" — that intent is ONLY for "who teaches [division] at [time]".
+IMPORTANT: When a user asks about a professor's schedule ("does X sir teach...", "X mam schedule", "lectures by X"), the intent MUST be "get_professor_schedule". NEVER use "query_timetable" when the primary question is about a specific professor.
 
 Respond with ONLY valid JSON — no prose, no markdown fences:
 
