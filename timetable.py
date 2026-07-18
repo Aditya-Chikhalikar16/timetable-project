@@ -107,7 +107,16 @@ class TimetableStore:
                     mask = df["professor"].isin(names)
             df = df[mask]
         if class_type:
-            df = df[df["type"].str.lower() == class_type.lower()]
+            ct_lower = class_type.lower()
+            if "lecture" in ct_lower:
+                ct_lower = "theory"
+            elif "lab" in ct_lower:
+                ct_lower = "lab"
+            elif "prac" in ct_lower:
+                ct_lower = "practical"
+            elif "tut" in ct_lower:
+                ct_lower = "tutorial"
+            df = df[df["type"].str.lower().str.contains(ct_lower, na=False)]
         if room:
             df = df[df["room"].str.contains(re.escape(room), case=False, na=False)]
         if time_slot:
