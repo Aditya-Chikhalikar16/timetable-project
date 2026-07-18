@@ -1,13 +1,13 @@
 {
-  "raw": "{\n  \"intent\": \"get_filtered_schedule\",\n  \"division\": \"CE2\",\n  \"day\": \"Tuesday\",\n  \"time_slot\": null,\n  \"subject\": \"Practicals\",\n  \"professor\": null,\n  \"class_type\": \"Practical\",\n  \"room\": null,\n  \"entry_id\": null,\n  \"new_professor\": null,\n  \"new_day\": null,\n  \"new_time_slot\": null,\n  \"new_division\": null,\n  \"new_subject\": null,\n  \"new_room\": null,\n  \"new_type\": null,\n  \"old_subject\": \"Practicals\",\n  \"new_subject_replace\": null\n}",
+  "raw": "{\n  \"intent\": \"get_professor_schedule\",\n  \"division\": \"null\",\n  \"day\": \"null\",\n  \"time_slot\": \"null\",\n  \"subject\": \"Lab\",\n  \"professor\": \"Gadekar Sir\",\n  \"class_type\": \"Lab\",\n  \"room\": \"null\",\n  \"entry_id\": \"null\",\n  \"new_professor\": \"null\",\n  \"new_day\": \"null\",\n  \"new_time_slot\": \"null\",\n  \"new_division\": \"null\",\n  \"new_subject\": \"null\",\n  \"new_room\": \"null\",\n  \"new_type\": \"null\",\n  \"old_subject\": \"Lab\",\n  \"new_subject_replace\": \"null\"\n}",
   "plan": {
-    "intent": "get_filtered_schedule",
-    "division": "CE2",
-    "day": "Tuesday",
+    "intent": "get_professor_schedule",
+    "division": null,
+    "day": null,
     "time_slot": null,
-    "subject": "Practicals",
-    "professor": null,
-    "class_type": "Practical",
+    "subject": "Lab",
+    "professor": "Gadekar Sir",
+    "class_type": "Lab",
     "room": null,
     "entry_id": null,
     "new_professor": null,
@@ -17,7 +17,7 @@
     "new_subject": null,
     "new_room": null,
     "new_type": null,
-    "old_subject": "Practicals",
+    "old_subject": "Lab",
     "new_subject_replace": null
   }
 }

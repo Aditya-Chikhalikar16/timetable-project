@@ -261,13 +261,17 @@ class TimetableStore:
                 )
         return "\n".join(lines) if lines else "No matching classes found."
 
-    def get_filtered_schedule(self, division=None, day=None, class_type=None, subject=None):
+    def get_filtered_schedule(self, division=None, day=None, class_type=None, subject=None, professor=None):
         records = self.query(
-            division=division, day=day, class_type=class_type, subject=subject, limit=100
+            division=division, day=day, class_type=class_type, subject=subject, professor=professor, limit=100
         )
         parts = []
         if class_type:
             parts.append(f"{class_type}s")
+        if subject:
+            parts.append(subject)
+        if professor:
+            parts.append(professor)
         if division:
             parts.append(division)
         if day:

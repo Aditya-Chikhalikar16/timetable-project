@@ -605,6 +605,17 @@ class TimetableChatbot:
         room = plan.get("room")
         entry_id = plan.get("entry_id")
 
+        # Auto-correct LLM field hallucinations (e.g., putting a professor in the 'division' field)
+        if div and div.upper() not in [d.upper() for d in self.store.divisions]:
+            if self.store.find_professors(div):
+                professor = div
+            div = None
+            
+        if subject and not self.store.find_subjects(subject):
+            if self.store.find_professors(subject):
+                professor = subject
+                subject = None
+
         if intent == "query_timetable":
             records = self.store.query(
                 division=div, day=day, time_slot=time_slot,
@@ -620,7 +631,7 @@ class TimetableChatbot:
 
         if intent == "get_filtered_schedule":
             return self.store.get_filtered_schedule(
-                division=div, day=day, class_type=class_type, subject=subject)
+                division=div, day=day, class_type=class_type, subject=subject, professor=professor)
 
         if intent == "get_professor_schedule":
             if not professor:
