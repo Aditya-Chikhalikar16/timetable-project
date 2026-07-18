@@ -2,15 +2,19 @@
 from __future__ import annotations
 
 import json
+import logging
 import re
 import urllib.error
 import urllib.request
 from typing import Any
 
 from timetable import TimetableStore
-from edit_parser import handle_edit_command, is_edit_command, format_edit_result
+from edit_parser import handle_edit_command, is_edit_command, format_edit_result, format_replace_preview
 
 import os
+
+logger = logging.getLogger(__name__)
+
 OLLAMA_BASE = "http://localhost:11434"
 DEFAULT_MODEL = "llama3.2"
 GROQ_MODEL = "llama-3.2-3b-preview"
@@ -20,7 +24,7 @@ GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
 # Prompts
 # ---------------------------------------------------------------------------
 
-EXTRACT_SYSTEM = """You are a college timetable assistant. Your job is to parse the user's message and return a JSON action plan.
+EXTRACT_SYSTEM = """You are a college timetable assistant. Your ONLY job is to read the user's message and output a JSON action plan.
 
 The timetable has these divisions: AD1, AD2, AD3, CE1, CE2, CE3, ET1, ET2, ET3, EL, IT1, IT2, IT3, ME1, ME2.
 Days: Monday, Tuesday, Wednesday, Thursday, Friday.
@@ -30,28 +34,53 @@ Class types: Theory, Lab, Tutorial, Practical.
 
 {professor_list}
 
-CONVERSATION CONTEXT — REFERENCE RESOLUTION:
-You will receive the conversation history before the current message. Use it to resolve references:
-- Pronouns: "they", "them", "it", "those", "that" → resolve from prior messages
-- Implicit references: "same day", "same division", "that professor" → carry over from prior context
-- Follow-up questions: "what about Monday?", "and for CE1?" → inherit relevant fields from prior context
+INTENT SELECTION GUIDE (pick the BEST match):
+- "get_professor_schedule" — ANY question about a professor's classes, schedule, or when/where they teach.
+  Examples: "does bochare sir have class on tuesday", "when does kolambe mam teach", "show me sharma sir's timetable", "bochare tuesday lectures"
+- "query_timetable" — General search with multiple filters (division + subject, day + type, etc.)
+  Examples: "CE2 labs on friday", "physics classes", "what's in room AC 301"
+- "get_day_schedule" — Show everything on a specific day (optionally for a division).
+  Examples: "what's on monday", "CE1 thursday schedule", "show friday"
+- "get_division_timetable" — Show full timetable for a division.
+  Examples: "show CE2 timetable", "full schedule for IT1"
+- "get_filtered_schedule" — Filtered view (by type, subject, etc.).
+  Examples: "all labs for CE2", "theory classes on wednesday"
+- "who_teaches_at" — ONLY when asking who is teaching at a SPECIFIC division + time.
+  Examples: "who teaches CE2 at 10 am on monday" (requires division AND time_slot)
+- "get_timetable_summary" — Overview statistics.
+  Examples: "how many classes total", "summary", "overview"
+- "find_class" — Search with entry IDs shown.
+- "chitchat" — Greetings, thanks, jokes, unrelated questions.
+  Examples: "hi", "thanks", "what's the weather"
 
-CRITICAL — When to RESET vs INHERIT:
-- If the user introduces a NEW subject name (e.g. "what about Physics"), this is a FRESH subject query.
-  Set subject to the new value and CLEAR the professor field (set to null). Do NOT carry over the professor from a prior turn.
-- If the user introduces a NEW professor name, set professor and CLEAR subject (set to null).
-- Only inherit fields that the user does NOT explicitly change.
-- "what about X" means: query for X, keeping only division/day from context (not professor/subject).
+CONVERSATION CONTEXT:
+You will receive conversation history. Use it to resolve references:
+- "they", "them", "that professor" → resolve from prior messages
+- "same day", "and for CE1?" → inherit division/day from prior context
+- "what about Physics" → NEW subject query, CLEAR professor (set null)
+- "what about Monday" → KEEP division, change day
+- Only inherit fields the user does NOT explicitly change.
 
-Respond with ONLY valid JSON — no prose, no markdown fences. Use this schema:
+UNDERSTANDING CASUAL LANGUAGE:
+- "sir", "mam", "madam", "teacher" → the word before it is the professor's name. "bochare sir" → professor: "bochare"
+- "lecture", "class", "period" → means Theory unless "lab" or "tutorial" is said
+- "free period", "any gaps", "off" → query_timetable to check what's NOT scheduled
+- "after lunch", "afternoon" → time after 1:00 pm
+- "morning" → before 12:00 pm
+- Division names may be messy: "ce 2" → "CE2", "i.t. 1" → "IT1", "ad-3" → "AD3"
+- Misspellings: try your best to match against the professor/subject lists above
+
+IMPORTANT: When someone asks about a professor ("does X sir teach...", "X mam schedule", "when does X have class"), ALWAYS use intent "get_professor_schedule" with the professor's name. Do NOT use "who_teaches_at" — that intent is ONLY for "who teaches [division] at [time]".
+
+Respond with ONLY valid JSON — no prose, no markdown fences:
 
 {{
-  "intent": "<one of: query_timetable | get_day_schedule | get_filtered_schedule | get_professor_schedule | get_division_timetable | who_teaches_at | list_divisions | get_timetable_summary | add_class | update_class | delete_class | replace_subject | find_class | chitchat>",
+  "intent": "<intent from list above>",
   "division": "<division or null>",
   "day": "<day or null>",
   "time_slot": "<time slot string or null>",
-  "subject": "<subject name — use the natural name like 'Physics', 'Mathematics', 'Chemistry', etc. The system does partial matching so full codes are not needed. Set to null if not relevant.>",
-  "professor": "<professor name or partial name or null>",
+  "subject": "<natural subject name — 'Physics', 'Math', 'Chemistry', etc. System does partial matching. null if not relevant>",
+  "professor": "<professor name/partial name or null>",
   "class_type": "<Theory|Lab|Tutorial|Practical or null>",
   "room": "<room or null>",
   "entry_id": <integer or null>,
@@ -62,31 +91,37 @@ Respond with ONLY valid JSON — no prose, no markdown fences. Use this schema:
   "new_subject": "<new value or null>",
   "new_room": "<new value or null>",
   "new_type": "<new value or null>",
-  "old_subject": "<for replace_subject: subject to replace or null>",
-  "new_subject_replace": "<for replace_subject: new subject or null>"
+  "old_subject": "<for replace_subject or null>",
+  "new_subject_replace": "<for replace_subject or null>"
 }}
 
 Rules:
-- ALWAYS resolve references from conversation history before filling JSON fields.
-- When the user names a subject, use its natural/common name. The system does partial text matching.
-  Examples: "Physics" matches "AP (Applied Physics)", "Math" matches "M-I (Engineering Mathematics I)".
-- When the user asks about a DIFFERENT topic than the previous turn, clear unrelated fields.
-- For vague time words like "morning" map to approximate slots (9:00 am - 10:00 am range), "afternoon" to 1pm+, "after lunch" to 1pm+.
-- "tomorrow", "today" etc. — leave day as null (you don't know the actual date).
-- For chitchat (greetings, thanks, unrelated questions) use intent "chitchat".
-- Normalize division names: "CE 2" → "CE2", "it1" → "IT1".
-- If the user says "labs" without specifying Theory/Lab/etc., set class_type to "Lab"."""
+- When the user names a subject, use the natural name. "Physics" matches "AP (Applied Physics)", "Math" matches "M-I (Engineering Mathematics I)".
+- Normalize divisions: "CE 2" → "CE2", "it1" → "IT1".
+- "labs" without other context → set class_type to "Lab".
+- "tomorrow", "today" → leave day as null.
+- For chitchat (greetings, thanks, off-topic) → intent: "chitchat"."""
 
-ANSWER_SYSTEM = """You are a friendly college timetable assistant.
-You have retrieved data from the timetable database to answer the user's latest question.
-You also have the conversation history so you can naturally refer to what was discussed before.
+ANSWER_SYSTEM = """You are a warm, friendly college timetable assistant talking to students and staff.
+You've just looked up information from the timetable database for them.
 
-Guidelines:
-- Write a clear, concise, natural-language answer based ONLY on the retrieved data.
-- Reference prior conversation naturally when relevant (e.g. "As I mentioned...", "Unlike CE2 which had 3 labs, CE1 has...").
-- Do not guess or invent any timetable information not present in the retrieved data.
-- If the data is empty, say so naturally.
-- Keep answers brief unless the user asked for everything."""
+Your personality:
+- Be conversational and helpful, like a friendly senior student who knows the timetable well
+- Use natural, casual language — not robotic or formal
+- Add brief helpful context when relevant (e.g. "That's a pretty packed day!" or "Looks like a light morning!")
+- Use emoji sparingly to keep things friendly (1-2 per message max)
+
+Rules about facts:
+- ONLY state facts that appear in the "[Retrieved timetable data]" block below
+- If the data says nothing was found, be helpful about it — suggest what they could try instead
+- NEVER invent times, rooms, professor names, or subjects not in the data
+- If the data has entries, present them in a clear, readable way
+- You can group, summarize, or highlight things to make the answer more useful
+
+Formatting:
+- Use bullet points or short paragraphs, not walls of text
+- Bold important details like times, professor names, subjects
+- Keep answers concise but complete — don't cut off relevant data"""
 
 
 # ---------------------------------------------------------------------------
@@ -175,6 +210,36 @@ def _groq_chat(messages: list[dict], temperature: float = 0.2, timeout: int = 60
             err_data = e.read().decode('utf-8')
             raise RuntimeError(f"Groq API error: {err_data}") from e
         raise RuntimeError(f"Groq not reachable: {e}") from e
+
+
+def _is_affirmative(msg: str) -> bool:
+    return bool(re.match(r"^\s*(yes|yep|yeah|yup|y|confirm|confirmed|do it|go ahead|ok|okay)\b", msg, re.I))
+
+
+def _is_negative(msg: str) -> bool:
+    return bool(re.match(r"^\s*(no|nope|nah|n|cancel|stop|never\s*mind|nevermind)\b", msg, re.I))
+
+
+def _looks_like_no_data(text: str) -> bool:
+    """True for the data layer's deterministic 'nothing found / need more info'
+    messages. These should be relayed to the user as-is, never handed to the
+    LLM for 'natural' phrasing — that's exactly the step where a small local
+    model tends to fill the gap with fabricated specifics instead of just
+    repeating "not found"."""
+    t = text.strip().lower()
+    no_data_prefixes = (
+        "no matching classes found",
+        "no classes found",
+        "no timetable found",
+        "no entries found",
+        "no classes matching",
+        "please specify",
+        "i couldn't find a matching entry",
+        "i'm not sure how to handle",
+        "multiple entries match",
+        "multiple matches",
+    )
+    return t.startswith(no_data_prefixes)
 
 
 # ---------------------------------------------------------------------------
@@ -286,11 +351,36 @@ class TimetableChatbot:
         self._ollama_status = detect_ollama()
         self._groq_status = detect_groq()
 
-    def chat(self, user_message: str, history: list[dict] | None = None) -> str:
+    def chat(
+        self,
+        user_message: str,
+        history: list[dict] | None = None,
+        pending_confirmation: dict | None = None,
+    ) -> tuple[str, dict | None]:
+        """Process one chat turn.
+
+        Returns (reply_text, pending_confirmation). The caller (e.g. app.py)
+        must store `pending_confirmation` and pass it back on the *next* call,
+        so a delete/replace can require an explicit yes/no before it happens.
+        """
+        # ── A confirmation is awaiting a reply — handle that first ──────────
+        if pending_confirmation:
+            if _is_affirmative(user_message):
+                return self._execute_pending(pending_confirmation), None
+            if _is_negative(user_message):
+                return "Okay, cancelled — nothing was changed.", None
+            reminder = (
+                "I still need a yes or no on this before doing anything else:\n\n"
+                f"{pending_confirmation.get('preview', 'the pending change')}"
+            )
+            return reminder, pending_confirmation
+
         if is_edit_command(user_message):
             edit_reply = handle_edit_command(self.store, user_message)
-            if edit_reply:
-                return edit_reply
+            if edit_reply is not None:
+                if isinstance(edit_reply, dict):
+                    return edit_reply["text"], edit_reply["pending"]
+                return edit_reply, None
 
         status = self.get_status()
         active = status["active_provider"]
@@ -299,10 +389,24 @@ class TimetableChatbot:
             try:
                 return self._chat_llm(user_message, history or [], active)
             except Exception as exc:
-                fallback = self._fallback_chat(user_message)
-                return f"{fallback}\n\n*⚠️ {active.title()} error — used offline mode: {exc}*"
+                logger.warning("Falling back to offline mode after %s error: %s", active, exc)
+                fallback_text, fallback_pending = self._fallback_chat(user_message)
+                note = "_I couldn't reach the AI model just now, so here's my best offline answer:_\n\n"
+                return note + fallback_text, fallback_pending
 
         return self._fallback_chat(user_message)
+
+    def _execute_pending(self, pending: dict) -> str:
+        """Actually carry out a previously-previewed delete/replace."""
+        action = pending.get("action")
+        params = pending.get("params", {})
+        if action == "delete":
+            result = self.store.delete_class(**params)
+            return format_edit_result(self.store, result, "delete")
+        if action == "replace":
+            result = self.store.replace_subject(**params)
+            return format_edit_result(self.store, result, "replace")
+        return "I lost track of what we were confirming — could you try that request again?"
 
     # ------------------------------------------------------------------
     # LLM two-phase chat
@@ -314,7 +418,7 @@ class TimetableChatbot:
         else:
             return _ollama_chat(self.model, messages, temperature=temperature)
 
-    def _chat_llm(self, user_message: str, history: list[dict], provider: str) -> str:
+    def _chat_llm(self, user_message: str, history: list[dict], provider: str) -> tuple[str, dict | None]:
         # ── Phase 1: extract intent + entities ──────────────────────────
         # Build dynamic system prompt with actual subject/professor data
         unique_subjects = list(set(
@@ -341,34 +445,103 @@ class TimetableChatbot:
 
         raw = self._call_llm(extract_messages, provider, temperature=0.0)
         plan = self._parse_json_plan(raw)
+        logger.info("Phase 1 plan for %r: %s", user_message, plan)
 
         intent = plan.get("intent", "chitchat")
 
         # Chitchat — just ask the model to reply directly
         if intent == "chitchat":
-            return self._llm_direct(user_message, history, provider)
+            return self._llm_direct(user_message, history, provider), None
+
+        # Destructive actions require an explicit yes/no before touching data.
+        if intent == "delete_class":
+            return self._preview_delete_intent(plan)
+        if intent == "replace_subject":
+            return self._preview_replace_intent(plan)
 
         # ── Phase 2: fetch data ──────────────────────────────────────────
         data_text = self._execute_plan(intent, plan)
+        logger.info("Phase 2 retrieved data for %r:\n%s", user_message, data_text)
 
-        # ── Phase 3: generate natural answer (with full history context) ──
+        # If the data layer says "not found", still let the LLM phrase it naturally
+        # so responses feel human. Only bypass for truly empty/error results.
+        if data_text.strip() == "":
+            return "I couldn't find anything matching that — could you rephrase or give me more details? 🤔", None
+
+        # ── Phase 3: generate natural answer ──────────────────────────────
+        # Deliberately NOT including conversation history here. This phase's
+        # only job is to phrase THIS turn's retrieved data — giving it access
+        # to prior turns invites it to reference (and build on) earlier
+        # answers as if they were verified facts, even when they were wrong.
         answer_messages = [{"role": "system", "content": ANSWER_SYSTEM}]
-        # Include recent conversation so model can reference prior turns
-        for m in history[-8:]:
-            if m["role"] in ("user", "assistant"):
-                answer_messages.append({"role": m["role"], "content": m["content"]})
         answer_messages.append({"role": "user", "content": (
             f"{user_message}\n\n"
             f"[Retrieved timetable data for this question:]\n{data_text}"
         )})
-        return self._call_llm(answer_messages, provider, temperature=0.3)
+        return self._call_llm(answer_messages, provider, temperature=0.3), None
+
+    def _preview_delete_intent(self, plan: dict) -> tuple[str, dict | None]:
+        """Resolve a delete_class intent to a specific entry and ask for confirmation."""
+        params = {
+            "entry_id": plan.get("entry_id"),
+            "division": plan.get("division"),
+            "day": plan.get("day"),
+            "time_slot": plan.get("time_slot"),
+            "subject": plan.get("subject"),
+            "professor": plan.get("professor"),
+            "class_type": plan.get("class_type"),
+        }
+        params = {k: v for k, v in params.items() if v not in (None, "")}
+        preview = self.store.resolve_for_delete(**params)
+        if preview["status"] == "not_found":
+            return "I couldn't find a matching entry to delete. Try including a division, day, subject, or the entry ID.", None
+        if preview["status"] == "ambiguous":
+            text = "Multiple entries match that description — please specify an ID:\n" + \
+                self.store.format_entries_with_ids(preview["matches"])
+            return text, None
+        e = preview["entry"]
+        text = (
+            f"⚠️ This will **delete** [ID {e['entry_id']}]: {e['day']} {e['time_slot']} | "
+            f"{e['division']} | {e['subject']} | {e['professor']} | Room {e['room']} ({e['type']}).\n\n"
+            "Reply **yes** to confirm or **no** to cancel."
+        )
+        pending = {"action": "delete", "params": {"entry_id": e["entry_id"]}, "preview": text}
+        return text, pending
+
+    def _preview_replace_intent(self, plan: dict) -> tuple[str, dict | None]:
+        """Resolve a replace_subject intent to specific entries and ask for confirmation."""
+        old_subj = plan.get("old_subject")
+        new_subj = plan.get("new_subject_replace") or plan.get("new_subject")
+        if not old_subj or not new_subj:
+            return "Please specify both the current subject and what to replace it with.", None
+        div = plan.get("division")
+        day = plan.get("day")
+        preview = self.store.resolve_for_replace(old_subj, new_subj, div, day)
+        if preview["status"] == "not_found":
+            hint = f"'{old_subj}'" + (f" in {div}" if div else "")
+            return f"No classes matching {hint}.", None
+        entries = preview["entries"]
+        text = (
+            f"⚠️ This will **replace {len(entries)} class(es)** as shown below:\n\n"
+            f"{format_replace_preview(entries)}\n\n"
+            "Reply **yes** to confirm or **no** to cancel."
+        )
+        pending = {
+            "action": "replace",
+            "params": {"old_subject": old_subj, "new_subject": new_subj, "division": div, "day": day},
+            "preview": text,
+        }
+        return text, pending
 
     def _llm_direct(self, user_message: str, history: list[dict], provider: str) -> str:
         """For chitchat / meta questions — reply without timetable data."""
         messages = [
             {"role": "system", "content": (
-                "You are a friendly college timetable assistant. "
-                "Answer naturally. If you don't know the answer, say so."
+                "You are a warm, friendly college timetable assistant. "
+                "Chat naturally like a helpful senior student. Use casual language, "
+                "be encouraging, and add a touch of personality. If someone greets you, "
+                "greet them back warmly and let them know you're here to help with their timetable. "
+                "Keep responses short and natural — don't be formal or robotic."
             )},
         ]
         for m in history[-6:]:
@@ -432,8 +605,12 @@ class TimetableChatbot:
             if not professor:
                 return "Please specify a professor name."
             if hasattr(self.store, "format_professor_schedule"):
-                return self.store.format_professor_schedule(professor)
-            records = self.store.get_professor_schedule(professor)
+                return self.store.format_professor_schedule(
+                    professor, day=day, division=div, class_type=class_type, time_slot=time_slot
+                )
+            records = self.store.get_professor_schedule(
+                professor, day=day, division=div, class_type=class_type, time_slot=time_slot
+            )
             return self.store.format_records(records, compact=True) if records else f"No classes found for '{professor}'."
 
         if intent == "get_division_timetable":
@@ -443,8 +620,24 @@ class TimetableChatbot:
             return self.store.format_records(records, compact=True) if records else f"No timetable found for {div}."
 
         if intent == "who_teaches_at":
+            # If we have professor but no div/time_slot, this was misclassified — fall through to query_timetable
+            if professor and (not div or not time_slot):
+                records = self.store.query(
+                    professor=professor, day=day, division=div,
+                    class_type=class_type, time_slot=time_slot, limit=20,
+                )
+                if records:
+                    return self.store.format_records(records, compact=True)
+                return f"No classes found for '{professor}'" + (f" on {day}" if day else "") + "."
             if not div or not time_slot:
-                return "Please specify division and time slot."
+                # Try a general query with whatever we have
+                records = self.store.query(
+                    division=div, day=day, time_slot=time_slot,
+                    professor=professor, class_type=class_type, limit=20,
+                )
+                if records:
+                    return self.store.format_records(records, compact=True)
+                return "I need a bit more info — which division and time slot are you asking about?"
             return self.store.answer_faculty_at_time(div, time_slot, day)
 
         if intent == "list_divisions":
@@ -486,23 +679,10 @@ class TimetableChatbot:
             )
             return format_edit_result(self.store, result, "update")
 
-        if intent == "delete_class":
-            result = self.store.delete_class(
-                entry_id=entry_id, division=div, day=day,
-                time_slot=time_slot, subject=subject, professor=professor,
-            )
-            return format_edit_result(self.store, result, "delete")
-
-        if intent == "replace_subject":
-            old_subj = plan.get("old_subject")
-            new_subj = plan.get("new_subject_replace") or plan.get("new_subject")
-            if not old_subj or not new_subj:
-                return "Please specify the old and new subject names."
-            result = self.store.replace_subject(
-                old_subject=old_subj, new_subject=new_subj,
-                division=div, day=day,
-            )
-            return format_edit_result(self.store, result, "replace")
+        # Note: delete_class and replace_subject are intercepted earlier in
+        # _chat_llm (via _preview_delete_intent / _preview_replace_intent) so
+        # they can be confirmed before anything is changed — they never reach
+        # this point.
 
         return "I'm not sure how to handle that request."
 
@@ -510,7 +690,7 @@ class TimetableChatbot:
     # Rule-based fallback
     # ------------------------------------------------------------------
 
-    def _fallback_chat(self, user_msg: str) -> str:
+    def _fallback_chat(self, user_msg: str) -> tuple[str, dict | None]:
         msg = user_msg.lower().strip()
         if not msg:
             return (
@@ -519,48 +699,52 @@ class TimetableChatbot:
                 "- *Add class AD1 Monday 10:00 am - 11:00 am, subject AP, professor Dr. X, room AC 301*\n"
                 "- *Update id 93 room to AC 401*\n"
                 "- *Delete id 113*"
-            )
+            ), None
 
         edit_reply = handle_edit_command(self.store, user_msg)
-        if edit_reply:
-            return edit_reply
-
-        prof_query = _extract_professor_query(user_msg)
-        if prof_query and not re.search(r"\b(add|delete|update|change|replace|find)\b", msg):
-            if hasattr(self.store, "format_professor_schedule"):
-                return self.store.format_professor_schedule(prof_query)
-            records = self.store.get_professor_schedule(prof_query)
-            return self.store.format_records(records, compact=True) if records else f"No classes for '{prof_query}'."
+        if edit_reply is not None:
+            if isinstance(edit_reply, dict):
+                return edit_reply["text"], edit_reply["pending"]
+            return edit_reply, None
 
         div_match = re.search(r"\b(ad[123]|ce[123]|et[123]|el|it[123]|me[12])\b", msg, re.I)
         division = div_match.group(1).upper() if div_match else None
         days = ["monday", "tuesday", "wednesday", "thursday", "friday"]
         day = next((d.capitalize() for d in days if d in msg), None)
+
+        prof_query = _extract_professor_query(user_msg)
+        if prof_query and not re.search(r"\b(add|delete|update|change|replace|find)\b", msg):
+            if hasattr(self.store, "format_professor_schedule"):
+                return self.store.format_professor_schedule(prof_query, day=day, division=division), None
+            records = self.store.get_professor_schedule(prof_query, day=day, division=division)
+            text = self.store.format_records(records, compact=True) if records else f"No classes for '{prof_query}'."
+            return text, None
         time_str = _extract_time(user_msg)
 
         if "division" in msg and not division:
-            return "Available divisions: " + ", ".join(self.store.divisions)
+            return "Available divisions: " + ", ".join(self.store.divisions), None
         if "summary" in msg or "overview" in msg:
-            return str(self.store.get_summary())
+            return str(self.store.get_summary()), None
         if division and time_str and _asks_faculty(msg):
-            return self.store.answer_faculty_at_time(division, time_str, day)
+            return self.store.answer_faculty_at_time(division, time_str, day), None
         if division and time_str:
             records = self.store.query(division=division, day=day, time_slot=time_str, limit=10)
-            return self.store.format_records(records, compact=True) if records else f"No classes for {division} at {time_str}."
+            text = self.store.format_records(records, compact=True) if records else f"No classes for {division} at {time_str}."
+            return text, None
         class_type = _extract_class_type(user_msg)
         if division and day:
             if class_type:
-                return self.store.get_filtered_schedule(division=division, day=day, class_type=class_type)
-            return self.store.get_day_overview(day, division)
+                return self.store.get_filtered_schedule(division=division, day=day, class_type=class_type), None
+            return self.store.get_day_overview(day, division), None
         if division and _wants_full_timetable(msg):
-            return self.store.format_records(self.store.get_division_schedule(division), compact=True)
+            return self.store.format_records(self.store.get_division_schedule(division), compact=True), None
         if division:
             return (
                 f"I found division **{division}**. Try:\n"
                 f"- *Who teaches {division} at 10:00 am?*\n"
                 f"- *Find entries {division} Friday*\n"
                 f"- *Replace {division} BET with AP*"
-            )
+            ), None
         return (
             "**Commands you can use:**\n"
             "- *Find CE2 Friday labs*\n"
@@ -569,4 +753,4 @@ class TimetableChatbot:
             "- *Change CE2 Monday BET room to AC 502*\n"
             "- *Delete id 113*\n"
             "- *Replace CE2 BET with AP*"
-        )
+        ), None

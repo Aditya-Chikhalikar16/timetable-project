@@ -1,9 +1,13 @@
 """College Timetable AI Chatbot — Streamlit app."""
+import logging
 from pathlib import Path
 import streamlit as st
 import pandas as pd
 from timetable import TimetableStore
 from chatbot import TimetableChatbot, detect_ollama, DEFAULT_MODEL
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 st.set_page_config(page_title="Timetable Assistant", page_icon="📅", layout="wide")
 
@@ -47,8 +51,9 @@ with st.sidebar:
     elif status["active_provider"] == "groq":
         st.success("🟢 Groq connected (Cloud)")
     else:
-        st.warning("🟡 AI offline — using rule-based mode")
-        st.caption("Add GROQ_API_KEY to secrets or install [Ollama](https://ollama.com) locally.")
+        st.warning("🟡 AI offline — using basic keyword matching for now")
+        st.caption("Still fully usable for queries and edits, just less flexible with phrasing. "
+                   "(Add GROQ_API_KEY to secrets or install [Ollama](https://ollama.com) locally for full AI.)")
 
     if st.button("🔁 Refresh AI status"):
         bot = get_bot()
@@ -108,6 +113,9 @@ if view_mode == "Chat":
             with st.chat_message(msg["role"]):
                 st.markdown(msg["content"])
 
+        if "pending_confirmation" not in st.session_state:
+            st.session_state.pending_confirmation = None
+
         if prompt := st.chat_input("Ask about your timetable..."):
             st.session_state.messages.append({"role": "user", "content": prompt})
             with st.chat_message("user"):
@@ -120,14 +128,23 @@ if view_mode == "Chat":
             with st.chat_message("assistant"):
                 with st.spinner("Thinking..."):
                     try:
-                        reply = get_bot().chat(prompt, history)
-                    except Exception as exc:
-                        reply = f"Sorry, something went wrong: {exc}"
+                        reply, pending = get_bot().chat(
+                            prompt, history, st.session_state.pending_confirmation
+                        )
+                        st.session_state.pending_confirmation = pending
+                    except Exception:
+                        logger.exception("Chat handling failed for prompt: %r", prompt)
+                        reply = (
+                            "Sorry, I ran into a problem processing that. "
+                            "Please try rephrasing your question, or use the Edit tab instead."
+                        )
+                        st.session_state.pending_confirmation = None
                 st.markdown(reply)
             st.session_state.messages.append({"role": "assistant", "content": reply})
 
         if st.button("Clear chat"):
             st.session_state.messages = []
+            st.session_state.pending_confirmation = None
             st.rerun()
 
     with col_preview:

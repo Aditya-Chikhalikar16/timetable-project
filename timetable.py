@@ -1,4 +1,4 @@
-﻿"""Timetable data layer."""
+"""Timetable data layer."""
 from __future__ import annotations
 import re
 from pathlib import Path
@@ -126,16 +126,24 @@ class TimetableStore:
     def get_division_schedule(self, division, day=None):
         return self.query(division=division, day=day, limit=100)
 
-    def get_professor_schedule(self, professor):
-        return self.query(professor=professor, limit=100)
+    def get_professor_schedule(self, professor, day=None, division=None, class_type=None, time_slot=None):
+        return self.query(
+            professor=professor, day=day, division=division,
+            class_type=class_type, time_slot=time_slot, limit=100,
+        )
 
-    def format_professor_schedule(self, professor_query: str) -> str:
-        records = self.get_professor_schedule(professor_query)
+    def format_professor_schedule(self, professor_query: str, day=None, division=None,
+                                  class_type=None, time_slot=None) -> str:
+        records = self.get_professor_schedule(
+            professor_query, day=day, division=division, class_type=class_type, time_slot=time_slot
+        )
+        scope_parts = [p for p in (day, division, class_type) if p]
+        scope = f" on {' / '.join(scope_parts)}" if scope_parts else ""
         if not records:
-            return f"No classes found for '{professor_query}'."
+            return f"No classes found for '{professor_query}'{scope}."
         names = self.find_professors(professor_query)
         header = names[0] if len(names) == 1 else ", ".join(names)
-        lines = [f"**Schedule for {header}** ({len(records)} classes):\n"]
+        lines = [f"**Schedule for {header}{scope}** ({len(records)} classes):\n"]
         for r in records:
             lines.append(
                 f"- **{r['day']}** {r['time_slot']} | {r['division']} | {r['subject']} | Room {r['room']} ({r['type']})"
@@ -288,12 +296,12 @@ class TimetableStore:
         return entry
 
     def _resolve_entry_id(self, entry_id=None, division=None, day=None, time_slot=None,
-                          subject=None, professor=None):
+                          subject=None, professor=None, class_type=None):
         if entry_id is not None:
             if not self.df[self.df["_id"] == entry_id].empty:
                 return int(entry_id)
             return None
-        matches = self.find_entries(division, day, time_slot, subject, professor, limit=5)
+        matches = self.find_entries(division, day, time_slot, subject, professor, class_type, limit=5)
         if len(matches) == 1:
             return matches[0]["entry_id"]
         return matches
@@ -331,26 +339,73 @@ class TimetableStore:
         return {"success": True, "entry": entry}
 
 
-    def canonical_subject(self, abbrev, class_type="Theory"):
+    def canonical_subject(self, abbrev, class_type="Theory", subject_pool=None):
+        """Look up the existing full subject name for an abbreviation.
+
+        `subject_pool` lets a caller pass a fixed snapshot of subjects to search
+        (e.g. taken before a bulk update begins) instead of the live, possibly
+        already-partially-mutated `self.subjects` — otherwise a multi-row
+        replace can have an earlier row's new name get picked up as the
+        "existing" canonical match for a later row.
+        """
         ab = abbrev.upper().strip()
+        ab_pattern = re.escape(ab)
+        pool = self.subjects if subject_pool is None else subject_pool
         if class_type == "Tutorial":
-            for s in self.subjects:
+            for s in pool:
                 if s.upper().startswith(ab) and "Tutorial" in s:
                     return s
             return f"{abbrev.upper()} Tutorial" if len(abbrev) <= 4 else f"{abbrev} Tutorial"
         if class_type == "Lab":
-            for s in self.subjects:
-                if ab in s.upper() and "Lab" in s:
+            for s in pool:
+                # Word-boundary match, not bare substring containment — otherwise
+                # a short code like "CS" would match inside an unrelated word
+                # like "PHYSICS" and silently rename the wrong subject.
+                if re.search(rf"\b{ab_pattern}\b", s.upper()) and "Lab" in s:
                     return s
             return abbrev
-        for s in self.subjects:
+        for s in pool:
             su = s.upper()
             if su.startswith(ab + " (") or su.startswith(ab + "("):
                 return s
-        for s in self.subjects:
-            if ab in s.upper() and "Lab" not in s and "Tutorial" not in s:
+        for s in pool:
+            if re.search(rf"\b{ab_pattern}\b", s.upper()) and "Lab" not in s and "Tutorial" not in s:
                 return s
         return abbrev
+
+    def _resolved_replacement_name(self, entry, old_subject, new_subject, subject_pool=None):
+        """Work out the actual subject string a given entry will be renamed to."""
+        if entry["type"] == "Lab":
+            # Only replace the leading subject code (e.g. "AP" in "AP (Applied Physics) Lab"),
+            # not any matching substring inside the description (e.g. "Ap" in "Applied").
+            new_name = re.sub(
+                rf"^{re.escape(old_subject)}\b", new_subject, entry["subject"], count=1, flags=re.I
+            )
+            if new_name == entry["subject"]:
+                new_name = self.canonical_subject(new_subject, "Lab", subject_pool=subject_pool)
+        elif entry["type"] == "Tutorial":
+            new_name = self.canonical_subject(new_subject, "Tutorial", subject_pool=subject_pool)
+        else:
+            new_name = self.canonical_subject(new_subject, entry["type"], subject_pool=subject_pool)
+        return new_name
+
+    def resolve_for_replace(self, old_subject, new_subject, division=None, day=None):
+        """Preview what a replace_subject call would do, without changing any data."""
+        entries = self.find_entries(division=division, subject=old_subject, day=day, limit=50)
+        if not entries:
+            return {"status": "not_found"}
+        # Snapshot subjects once so multi-row previews are all resolved against
+        # the same starting state, not against each other's proposed renames.
+        subject_pool = list(self.subjects)
+        preview = []
+        for e in entries:
+            preview.append({
+                **e,
+                "resolved_new_subject": self._resolved_replacement_name(
+                    e, old_subject, new_subject, subject_pool=subject_pool
+                ),
+            })
+        return {"status": "ok", "entries": preview}
 
     def replace_subject(self, old_subject, new_subject, division=None, day=None):
         entries = self.find_entries(
@@ -361,18 +416,13 @@ class TimetableStore:
             if division:
                 hint += f" in {division}"
             return {"success": False, "error": f"No classes matching {hint}.", "matches": []}
+        # Snapshot subjects once so a bulk replace resolves every row against the
+        # same starting state — otherwise renaming row 1 could get picked up as
+        # the "existing" canonical name when resolving row 2, and so on.
+        subject_pool = list(self.subjects)
         updated = []
         for e in entries:
-            if e["type"] == "Lab":
-                new_name = re.sub(
-                    re.escape(old_subject), new_subject, e["subject"], flags=re.I
-                )
-                if new_name == e["subject"]:
-                    new_name = self.canonical_subject(new_subject, "Lab")
-            elif e["type"] == "Tutorial":
-                new_name = self.canonical_subject(new_subject, "Tutorial")
-            else:
-                new_name = self.canonical_subject(new_subject, e["type"])
+            new_name = self._resolved_replacement_name(e, old_subject, new_subject, subject_pool=subject_pool)
             result = self.update_class(entry_id=e["entry_id"], new_subject=new_name)
             if result.get("success"):
                 updated.append(result["entry"])
@@ -381,9 +431,24 @@ class TimetableStore:
         return {"success": True, "count": len(updated), "updated": updated}
 
 
+    def resolve_for_delete(self, entry_id=None, division=None, day=None, time_slot=None,
+                           subject=None, professor=None, class_type=None):
+        """Preview what a delete_class call would remove, without changing any data."""
+        resolved = self._resolve_entry_id(entry_id, division, day, time_slot, subject, professor, class_type)
+        if isinstance(resolved, list):
+            if not resolved:
+                return {"status": "not_found"}
+            return {"status": "ambiguous", "matches": resolved}
+        row = self.df[self.df["_id"] == resolved]
+        if row.empty:
+            return {"status": "not_found"}
+        entry = {c: row.iloc[0][c] for c in COLUMNS}
+        entry["entry_id"] = int(resolved)
+        return {"status": "ok", "entry": entry}
+
     def delete_class(self, entry_id=None, division=None, day=None, time_slot=None,
-                     subject=None, professor=None):
-        resolved = self._resolve_entry_id(entry_id, division, day, time_slot, subject, professor)
+                     subject=None, professor=None, class_type=None):
+        resolved = self._resolve_entry_id(entry_id, division, day, time_slot, subject, professor, class_type)
         if isinstance(resolved, list):
             if not resolved:
                 return {"success": False, "error": "No matching entry found.", "matches": []}

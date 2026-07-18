@@ -1,4 +1,4 @@
-﻿"""Parse natural-language edit commands for the timetable chatbot."""
+"""Parse natural-language edit commands for the timetable chatbot."""
 from __future__ import annotations
 
 import re
@@ -200,6 +200,16 @@ def is_edit_command(msg: str) -> bool:
     )
 
 
+def format_replace_preview(entries: list[dict]) -> str:
+    lines = []
+    for e in entries:
+        lines.append(
+            f"- [ID {e['entry_id']}] {e['day']} {e['time_slot']} | {e['division']} | "
+            f"{e['subject']} → **{e['resolved_new_subject']}** ({e['type']})"
+        )
+    return "\n".join(lines)
+
+
 def format_edit_result(store, result: dict, action: str) -> str:
     if not result.get("success"):
         err = result.get("error", f"{action} failed.")
@@ -238,8 +248,15 @@ def format_edit_result(store, result: dict, action: str) -> str:
     return str(result)
 
 
-def handle_edit_command(store, msg: str) -> str | None:
-    """Try to handle an edit command offline. Returns response or None."""
+def handle_edit_command(store, msg: str) -> str | dict | None:
+    """Try to handle an edit command offline.
+
+    Returns:
+        None — not an edit command.
+        str — a direct response (used for non-destructive actions and errors).
+        dict — {"text": ..., "pending": {...}} when the action is destructive
+               (delete/replace) and needs the user to confirm yes/no first.
+    """
     rep = parse_replace(msg)
     if rep:
         ctx = parse_context(msg)
@@ -247,8 +264,22 @@ def handle_edit_command(store, msg: str) -> str | None:
             rep["division"] = ctx["division"]
         if ctx.get("day"):
             rep["day"] = ctx["day"]
-        result = store.replace_subject(**rep)
-        return format_edit_result(store, result, "replace")
+        preview = store.resolve_for_replace(
+            rep["old_subject"], rep["new_subject"], rep.get("division"), rep.get("day")
+        )
+        if preview["status"] == "not_found":
+            hint = f"'{rep['old_subject']}'"
+            if rep.get("division"):
+                hint += f" in {rep['division']}"
+            return f"No classes matching {hint}."
+        entries = preview["entries"]
+        text = (
+            f"⚠️ This will **replace {len(entries)} class(es)** as shown below:\n\n"
+            f"{format_replace_preview(entries)}\n\n"
+            "Reply **yes** to confirm or **no** to cancel."
+        )
+        pending = {"action": "replace", "params": rep, "preview": text}
+        return {"text": text, "pending": pending}
 
     add = parse_add(msg)
     if add:
@@ -266,8 +297,22 @@ def handle_edit_command(store, msg: str) -> str | None:
 
     dele = parse_delete(msg)
     if dele:
-        result = store.delete_class(**dele)
-        return format_edit_result(store, result, "delete")
+        preview = store.resolve_for_delete(**dele)
+        if preview["status"] == "not_found":
+            return "I couldn't find a matching entry to delete. Try including a division, day, or the entry ID."
+        if preview["status"] == "ambiguous":
+            return (
+                "Multiple entries match that description — please specify an ID:\n"
+                + store.format_entries_with_ids(preview["matches"])
+            )
+        e = preview["entry"]
+        text = (
+            f"⚠️ This will **delete** [ID {e['entry_id']}]: {e['day']} {e['time_slot']} | "
+            f"{e['division']} | {e['subject']} | {e['professor']} | Room {e['room']} ({e['type']}).\n\n"
+            "Reply **yes** to confirm or **no** to cancel."
+        )
+        pending = {"action": "delete", "params": {"entry_id": e["entry_id"]}, "preview": text}
+        return {"text": text, "pending": pending}
 
     find = parse_find(msg)
     if find:
