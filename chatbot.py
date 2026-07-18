@@ -566,6 +566,7 @@ class TimetableChatbot:
                 "Use casual language and be encouraging, but DO NOT hallucinate a human backstory or pretend to be a real student. "
                 "If asked who you are, introduce yourself as the Timetable Assistant Bot. "
                 "If someone greets you, greet them back warmly and let them know you're here to help with their timetable. "
+                "CRITICAL: If the user asks a general knowledge question (e.g., about science, history, coding) or anything completely unrelated to college timetables, gently remind them that you are just a timetable assistant and cannot answer those types of questions. Steer them back to asking about their schedule. "
                 "Keep responses short and natural — don't be formal or robotic."
             )},
         ]
