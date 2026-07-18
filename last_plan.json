@@ -1,14 +1,14 @@
 {
-  "raw": "{\n  \"intent\": \"get_professor_schedule\",\n  \"division\": \"null\",\n  \"day\": \"null\",\n  \"time_slot\": \"null\",\n  \"subject\": \"Lab\",\n  \"professor\": \"Gadekar Sir\",\n  \"class_type\": \"Lab\",\n  \"room\": \"null\",\n  \"entry_id\": \"null\",\n  \"new_professor\": \"null\",\n  \"new_day\": \"null\",\n  \"new_time_slot\": \"null\",\n  \"new_division\": \"null\",\n  \"new_subject\": \"null\",\n  \"new_room\": \"null\",\n  \"new_type\": \"null\",\n  \"old_subject\": \"Lab\",\n  \"new_subject_replace\": \"null\"\n}",
+  "raw": "{\n  \"intent\": \"get_filtered_schedule\",\n  \"division\": null,\n  \"day\": null,\n  \"time_slot\": null,\n  \"subject\": \"null\",\n  \"professor\": null,\n  \"class_type\": \"free period\",\n  \"room\": \"MB 207A, MB 207B\",\n  \"entry_id\": null,\n  \"new_professor\": null,\n  \"new_day\": null,\n  \"new_time_slot\": null,\n  \"new_division\": null,\n  \"new_subject\": null,\n  \"new_room\": null,\n  \"new_type\": null,\n  \"old_subject\": null,\n  \"new_subject_replace\": null\n}",
   "plan": {
-    "intent": "get_professor_schedule",
+    "intent": "get_filtered_schedule",
     "division": null,
     "day": null,
     "time_slot": null,
-    "subject": "Lab",
-    "professor": "Gadekar Sir",
-    "class_type": "Lab",
-    "room": null,
+    "subject": null,
+    "professor": null,
+    "class_type": "free period",
+    "room": "MB 207A, MB 207B",
     "entry_id": null,
     "new_professor": null,
     "new_day": null,
@@ -17,7 +17,7 @@
     "new_subject": null,
     "new_room": null,
     "new_type": null,
-    "old_subject": "Lab",
+    "old_subject": null,
     "new_subject_replace": null
   }
 }

@@ -156,8 +156,6 @@ class TimetableStore:
                     names = self.find_subjects(subject)
                     if names:
                         mask = df["subject"].isin(names)
-                    else:
-                        mask = pd.Series([True] * len(df), index=df.index)
                 df = df[mask]
         if professor and not df.empty:
             mask = df["professor"].str.contains(re.escape(professor), case=False, na=False)
