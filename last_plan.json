@@ -1,14 +1,14 @@
 {
-  "raw": "{\n  \"intent\": \"query_timetable\",\n  \"division\": null,\n  \"day\": \"Monday\",\n  \"time_slot\": null,\n  \"subject\": \"AC\",\n  \"professor\": null,\n  \"class_type\": null,\n  \"room\": \"501\",\n  \"entry_id\": null,\n  \"new_professor\": null,\n  \"new_day\": null,\n  \"new_time_slot\": null,\n  \"new_division\": null,\n  \"new_subject\": null,\n  \"new_room\": null,\n  \"new_type\": null,\n  \"old_subject\": null,\n  \"new_subject_replace\": null\n}",
+  "raw": "{\n  \"intent\": \"query_timetable\",\n  \"division\": null,\n  \"day\": \"Tuesday\",\n  \"time_slot\": \"10:30 am\",\n  \"subject\": \"AC\",\n  \"professor\": null,\n  \"class_type\": null,\n  \"room\": \"AC 303\",\n  \"entry_id\": null,\n  \"new_professor\": null,\n  \"new_day\": null,\n  \"new_time_slot\": null,\n  \"new_division\": null,\n  \"new_subject\": null,\n  \"new_room\": null,\n  \"new_type\": null,\n  \"old_subject\": null,\n  \"new_subject_replace\": null\n}",
   "plan": {
     "intent": "query_timetable",
     "division": null,
-    "day": "Monday",
-    "time_slot": null,
+    "day": "Tuesday",
+    "time_slot": "10:30 am",
     "subject": "AC",
     "professor": null,
     "class_type": null,
-    "room": "501",
+    "room": "AC 303",
     "entry_id": null,
     "new_professor": null,
     "new_day": null,

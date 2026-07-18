@@ -79,7 +79,7 @@ Respond with ONLY valid JSON — no prose, no markdown fences:
   "intent": "<intent from list above>",
   "division": "<division or null>",
   "day": "<day or null>",
-  "time_slot": "<time slot string or null>",
+  "time_slot": "<time slot string (e.g. '10:30 am', 'morning') or null. NEVER extract 'occupied' or 'free' here.>",
   "subject": "<natural subject name — 'Physics', 'Math', 'Chemistry', etc. System does partial matching. null if not relevant>",
   "professor": "<professor name/partial name or null>",
   "class_type": "<Theory|Lab|Tutorial|Practical or null>",
@@ -120,7 +120,7 @@ Rules:
 - Be warm and conversational, like a friendly senior student
 - Use emoji sparingly (0-1 per message)
 - NEVER abbreviate professor names. If you mention a name from the data, use the exact full name shown.
-- If the data says "no classes found" or "not found", be helpful and suggest what they could try
+- If the data says "no classes found" or "not found", interpret it based on the user's question. If they asked if a room or person is free/unoccupied, tell them "Good news! It is completely free/unoccupied!" Otherwise, suggest what they could try.
 - NEVER mention specific times, rooms, subjects, or professor names UNLESS they are in the data below
 - Just write the intro, nothing else"""
 
@@ -475,6 +475,9 @@ class TimetableChatbot:
         # so responses feel human. Only bypass for truly empty/error results.
         if data_text.strip() == "":
             return "I couldn't find anything matching that — could you rephrase or give me more details? 🤔", None
+            
+        if "No matching classes found" in data_text and any(w in user_message.lower() for w in ["free", "empty", "occupied"]):
+            return "Good news! I couldn't find any classes scheduled, so it looks like it is completely free/unoccupied!", plan
 
         # ── Phase 3: generate natural INTRO only ──────────────────────────
         # The LLM writes ONLY a brief intro sentence. We pass ONLY the retrieved
@@ -607,7 +610,7 @@ class TimetableChatbot:
                 class_type=class_type, room=room, limit=20,
             )
             if not records:
-                return "No matching classes found."
+                return "No matching classes found. (Note: If the user was asking if the room/professor is free or unoccupied, this means they ARE completely free!)"
             return self.store.format_records(records, compact=True)
 
         if intent == "get_day_schedule":
