@@ -96,21 +96,21 @@ class TimetableStore:
         if division:
             if division.upper() in [d.upper() for d in self.divisions]:
                 df = df[df["division"].str.upper() == division.upper()]
-        if day:
+        if day and not df.empty:
             if day.lower() in [d.lower() for d in self.days]:
                 df = df[df["day"].str.lower() == day.lower()]
-        if subject:
+        if subject and not df.empty:
             ignore_words = {"lecture", "lectures", "class", "classes", "schedule", "timetable"}
             if subject.lower() not in ignore_words:
                 df = df[df["subject"].str.contains(re.escape(subject), case=False, na=False)]
-        if professor:
+        if professor and not df.empty:
             mask = df["professor"].str.contains(re.escape(professor), case=False, na=False)
             if not mask.any():
                 names = self.find_professors(professor)
                 if names:
                     mask = df["professor"].isin(names)
             df = df[mask]
-        if class_type:
+        if class_type and not df.empty:
             ct_lower = class_type.lower()
             match_type = None
             if "lecture" in ct_lower or "theory" in ct_lower:
@@ -123,12 +123,15 @@ class TimetableStore:
                 match_type = "tutorial"
             if match_type:
                 df = df[df["type"].str.lower().str.contains(match_type, na=False)]
-        if room:
+        if room and not df.empty:
             ignore_rooms = {"room", "class", "lecture", "hall", "lab"}
             if room.lower() not in ignore_rooms:
                 df = df[df["room"].str.contains(re.escape(room), case=False, na=False)]
-        if time_slot:
+        if time_slot and not df.empty:
             df = df[df["time_slot"].apply(lambda s: _times_match(time_slot, s))]
+        
+        if df.empty:
+            return df
         return df.sort_values(["day", "time_slot", "division"])
 
     def query(self, division=None, day=None, subject=None, professor=None,

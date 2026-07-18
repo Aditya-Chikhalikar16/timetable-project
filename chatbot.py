@@ -394,7 +394,7 @@ class TimetableChatbot:
             try:
                 return self._chat_llm(user_message, history or [], active)
             except Exception as exc:
-                logger.warning("Falling back to offline mode after %s error: %s", active, exc)
+                logger.exception("Falling back to offline mode after %s error: %s", active, exc)
                 fallback_text, fallback_pending = self._fallback_chat(user_message)
                 note = "_I couldn't reach the AI model just now, so here's my best offline answer:_\n\n"
                 return note + fallback_text, fallback_pending
@@ -574,7 +574,11 @@ class TimetableChatbot:
         m = re.search(r"\{.*\}", text, re.DOTALL)
         if m:
             try:
-                return json.loads(m.group(0))
+                plan = json.loads(m.group(0))
+                for k, v in list(plan.items()):
+                    if isinstance(v, str) and v.strip().lower() == "null":
+                        plan[k] = None
+                return plan
             except json.JSONDecodeError:
                 pass
         return {"intent": "chitchat"}
