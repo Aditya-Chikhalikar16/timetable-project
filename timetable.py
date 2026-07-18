@@ -168,7 +168,13 @@ class TimetableStore:
         if room and not df.empty:
             ignore_rooms = {"room", "class", "lecture", "hall", "lab"}
             if room.lower() not in ignore_rooms:
-                df = df[df["room"].str.contains(re.escape(room), case=False, na=False)]
+                norm_room = re.sub(r'[\W_]+', '', room.lower())
+                if norm_room:
+                    mask = df["room"].astype(str).apply(lambda x: norm_room in re.sub(r'[\W_]+', '', x.lower()))
+                    if not mask.any():
+                        # If completely hallucinated or misspelled beyond recognition, ignore filter
+                        mask = pd.Series([True] * len(df), index=df.index)
+                    df = df[mask]
         if time_slot and not df.empty:
             df = df[df["time_slot"].apply(lambda s: _times_match(time_slot, s))]
         
