@@ -71,6 +71,7 @@ UNDERSTANDING CASUAL LANGUAGE:
 - Misspellings: try your best to match against the professor/subject lists above
 
 IMPORTANT: When a user asks about a professor's schedule ("does X sir teach...", "X mam schedule", "lectures by X"), the intent MUST be "get_professor_schedule". NEVER use "query_timetable" when the primary question is about a specific professor.
+IMPORTANT: Room names often start with AC or MB. Do NOT extract "AC" or "MB" as a subject if it is just part of a room name.
 
 Respond with ONLY valid JSON — no prose, no markdown fences:
 
