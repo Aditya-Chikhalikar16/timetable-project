@@ -9,7 +9,7 @@ import urllib.request
 import datetime
 from typing import Any
 
-from timetable import TimetableStore
+from timetable import TimetableStore, DAYS_ORDER
 from edit_parser import handle_edit_command, is_edit_command, format_edit_result, format_replace_preview
 
 import os
@@ -568,34 +568,51 @@ class TimetableChatbot:
         # Check if they just want a specific list of attributes
         msg_lower = user_message.lower()
         target = None
-        idx = -1
+        target_col = None
         if "which division" in msg_lower or "what division" in msg_lower:
             target = "divisions"
-            idx = 1
+            target_col = "division"
         elif "which subject" in msg_lower or "what subject" in msg_lower or "which class" in msg_lower or "what class" in msg_lower:
             target = "subjects"
-            idx = 2
+            target_col = "subject"
         elif "which room" in msg_lower or "what room" in msg_lower or "where" in msg_lower:
             target = "rooms"
-            idx = 3
+            target_col = "room"
+        elif "which time" in msg_lower or "what time" in msg_lower or "when" in msg_lower:
+            target = "times"
+            target_col = "time_slot"
 
-        if target and "No matching classes found" not in data_text:
-            items = set()
-            for line in data_text.splitlines():
-                if line.startswith("- **"):
-                    parts = line.split("|")
-                    if len(parts) >= 4:
-                        val = parts[idx].strip()
-                        if target == "rooms":
-                            m = re.match(r"Room\s+(.+?)\s+\(", val)
-                            if m: val = m.group(1)
-                        if target == "subjects":
-                            m = re.match(r"(.*?)\s+\(", val)
-                            if m: val = m.group(1)
-                        items.add(val)
-            if items:
-                items_str = ", ".join(sorted(items))
-                return f"Here are the {target} I found: **{items_str}**", None
+        if target and "No matching classes found" not in data_text and plan:
+            div = plan.get("division")
+            day = plan.get("day")
+            time_slot = plan.get("time_slot") if target_col != "time_slot" else None
+            subject = plan.get("subject")
+            professor = plan.get("professor")
+            class_type = plan.get("class_type")
+            room = plan.get("room")
+            
+            records = self.store.query(
+                division=div, day=day, time_slot=time_slot,
+                subject=subject, professor=professor,
+                class_type=class_type, room=room, limit=100
+            )
+            
+            if records:
+                items = set()
+                for r in records:
+                    val = r.get(target_col)
+                    if val:
+                        if target_col == "time_slot" and r.get("day"):
+                            items.add(f"{r['day']} ({val})")
+                        else:
+                            items.add(str(val))
+                if items:
+                    # Sort time slots slightly nicer if it's times
+                    if target_col == "time_slot":
+                        items_str = ", ".join(sorted(items, key=lambda x: (DAYS_ORDER.index(x.split(" ")[0]) if x.split(" ")[0] in DAYS_ORDER else 99, x)))
+                    else:
+                        items_str = ", ".join(sorted(items))
+                    return f"Here are the {target} I found: **{items_str}**", None
 
         # ── Phase 3: generate natural INTRO only ──────────────────────────
         # The LLM writes ONLY a brief intro sentence. We pass ONLY the retrieved

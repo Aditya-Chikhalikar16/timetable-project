@@ -1,13 +1,13 @@
 {
-  "raw": "{\n  \"intent\": \"get_day_schedule\",\n  \"division\": \"ME1\",\n  \"day\": \"Monday\",\n  \"time_slot\": null,\n  \"subject\": null,\n  \"professor\": null,\n  \"class_type\": null,\n  \"room\": null,\n  \"entry_id\": null\n}",
+  "raw": "{\n  \"intent\": \"query_timetable\",\n  \"division\": \"CE3\",\n  \"day\": null,\n  \"time_slot\": null,\n  \"subject\": \"AP Lab\",\n  \"professor\": null,\n  \"class_type\": \"Lab\",\n  \"room\": null,\n  \"entry_id\": null\n}",
   "plan": {
-    "intent": "get_day_schedule",
-    "division": "ME1",
-    "day": "Monday",
+    "intent": "query_timetable",
+    "division": "CE3",
+    "day": null,
     "time_slot": null,
-    "subject": null,
+    "subject": "AP Lab",
     "professor": null,
-    "class_type": null,
+    "class_type": "Lab",
     "room": null,
     "entry_id": null
   }
