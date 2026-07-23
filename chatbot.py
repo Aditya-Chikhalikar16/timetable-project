@@ -63,7 +63,6 @@ You will receive conversation history. Use it to resolve references:
 
 UNDERSTANDING CASUAL LANGUAGE:
 - "sir", "mam", "madam", "teacher" → the word before it is the professor's name. "bochare sir" → professor: "bochare"
-- "lecture", "class", "period" → means Theory unless "lab" or "tutorial" is said
 - "free period", "any gaps", "off" → query_timetable to check what's NOT scheduled
 - "after lunch", "afternoon" → time after 1:00 pm
 - "morning" → before 12:00 pm

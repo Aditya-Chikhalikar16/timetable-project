@@ -1,12 +1,12 @@
 {
-  "raw": "{\n  \"intent\": \"get_professor_schedule\",\n  \"division\": null,\n  \"day\": \"Thursday\",\n  \"time_slot\": null,\n  \"subject\": null,\n  \"professor\": \"gadekar sir\",\n  \"class_type\": \"Theory\",\n  \"room\": null,\n  \"entry_id\": null,\n  \"new_professor\": null,\n  \"new_day\": null,\n  \"new_time_slot\": null,\n  \"new_division\": null,\n  \"new_subject\": null,\n  \"new_room\": null,\n  \"new_type\": null,\n  \"old_subject\": null,\n  \"new_subject_replace\": null\n}",
+  "raw": "{\n  \"intent\": \"get_professor_schedule\",\n  \"division\": null,\n  \"day\": \"Monday\",\n  \"time_slot\": null,\n  \"subject\": null,\n  \"professor\": \"indalkar mam\",\n  \"class_type\": \"Theory\",\n  \"room\": null,\n  \"entry_id\": null,\n  \"new_professor\": null,\n  \"new_day\": null,\n  \"new_time_slot\": null,\n  \"new_division\": null,\n  \"new_subject\": null,\n  \"new_room\": null,\n  \"new_type\": null,\n  \"old_subject\": null,\n  \"new_subject_replace\": null\n}",
   "plan": {
     "intent": "get_professor_schedule",
     "division": null,
-    "day": "Thursday",
+    "day": "Monday",
     "time_slot": null,
     "subject": null,
-    "professor": "gadekar sir",
+    "professor": "indalkar mam",
     "class_type": "Theory",
     "room": null,
     "entry_id": null,
