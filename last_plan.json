@@ -1,13 +1,13 @@
 {
-  "raw": "{\n  \"intent\": \"chitchat\",\n  \"division\": null,\n  \"day\": null,\n  \"time_slot\": null,\n  \"subject\": null,\n  \"professor\": null,\n  \"class_type\": null,\n  \"room\": null,\n  \"entry_id\": null,\n  \"new_professor\": null,\n  \"new_day\": null,\n  \"new_time_slot\": null,\n  \"new_division\": null,\n  \"new_subject\": null,\n  \"new_room\": null,\n  \"new_type\": null,\n  \"old_subject\": null,\n  \"new_subject_replace\": null\n}",
+  "raw": "{\n  \"intent\": \"get_professor_schedule\",\n  \"division\": null,\n  \"day\": \"Thursday\",\n  \"time_slot\": null,\n  \"subject\": null,\n  \"professor\": \"gadekar sir\",\n  \"class_type\": \"Theory\",\n  \"room\": null,\n  \"entry_id\": null,\n  \"new_professor\": null,\n  \"new_day\": null,\n  \"new_time_slot\": null,\n  \"new_division\": null,\n  \"new_subject\": null,\n  \"new_room\": null,\n  \"new_type\": null,\n  \"old_subject\": null,\n  \"new_subject_replace\": null\n}",
   "plan": {
-    "intent": "chitchat",
+    "intent": "get_professor_schedule",
     "division": null,
-    "day": null,
+    "day": "Thursday",
     "time_slot": null,
     "subject": null,
-    "professor": null,
-    "class_type": null,
+    "professor": "gadekar sir",
+    "class_type": "Theory",
     "room": null,
     "entry_id": null,
     "new_professor": null,

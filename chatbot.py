@@ -141,7 +141,7 @@ def detect_ollama() -> dict:
         return {"available": False, "models": []}
 
 
-def _ollama_chat(model: str, messages: list[dict], temperature: float = 0.2, timeout: int = 60, format_json: bool = False) -> str:
+def _ollama_chat(model: str, messages: list[dict], temperature: float = 0.2, timeout: int = 180, format_json: bool = False) -> str:
     """Call Ollama /api/chat and return the assistant content string."""
     body = {
         "model": model,
