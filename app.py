@@ -208,8 +208,8 @@ elif view_mode == "Edit":
         search_edit = st.text_input("🔍 Search entry to edit (by subject, day, division...)", key="edit_search")
         records = store.query(division=division_filter, day=day_filter, limit=None)
         if search_edit:
-            s = search_edit.lower()
-            records = [r for r in records if s in str(r).lower()]
+            search_words = [w.strip() for w in search_edit.lower().split() if w.strip()]
+            records = [r for r in records if all(w in str(r).lower() for w in search_words)]
         records = records[:100]
         
         if records:
@@ -246,8 +246,8 @@ elif view_mode == "Edit":
         search_del = st.text_input("🔍 Search entry to delete (by subject, day, division...)", key="del_search")
         records = store.query(division=division_filter, day=day_filter, limit=None)
         if search_del:
-            s = search_del.lower()
-            records = [r for r in records if s in str(r).lower()]
+            search_words = [w.strip() for w in search_del.lower().split() if w.strip()]
+            records = [r for r in records if all(w in str(r).lower() for w in search_words)]
         records = records[:100]
         
         if records:
