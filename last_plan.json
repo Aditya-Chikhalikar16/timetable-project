@@ -1,13 +1,14 @@
 {
-  "raw": "{\n  \"intent\": \"query_timetable\",\n  \"division\": null,\n  \"day\": null,\n  \"time_slot\": null,\n  \"subject\": null,\n  \"professor\": null,\n  \"class_type\": null,\n  \"room\": \"AC 301\"\n}",
+  "raw": "{\n  \"intent\": \"query_timetable\",\n  \"division\": null,\n  \"day\": \"Tuesday\",\n  \"time_slot\": \"morning\",\n  \"subject\": null,\n  \"professor\": null,\n  \"class_type\": null,\n  \"room\": \"MB 207A\",\n  \"entry_id\": null\n}",
   "plan": {
     "intent": "query_timetable",
     "division": null,
-    "day": null,
-    "time_slot": null,
+    "day": "Tuesday",
+    "time_slot": "morning",
     "subject": null,
     "professor": null,
     "class_type": null,
-    "room": "AC 301"
+    "room": "MB 207A",
+    "entry_id": null
   }
 }

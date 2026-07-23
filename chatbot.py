@@ -65,8 +65,8 @@ You will receive conversation history. Use it to resolve references:
 UNDERSTANDING CASUAL LANGUAGE & TIME:
 - "sir", "mam", "madam", "teacher" → the word before it is the professor's name. "bochare sir" → professor: "bochare"
 - "free period", "any gaps", "off" → query_timetable to check what's NOT scheduled
-- "after lunch", "afternoon" → time after 1:00 pm
-- "morning" → before 12:00 pm
+- "after lunch", "afternoon", "evening" → extract exactly as "afternoon"
+- "morning" → extract exactly as "morning"
 - "now", "right now", "currently" → set `day` and `time_slot` to the exact day and time from 'Current system time' above.
 - "today" → set `day` to the day from 'Current system time'.
 - "tomorrow" → set `day` to the day after 'Current system time'.

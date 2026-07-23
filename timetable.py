@@ -204,7 +204,19 @@ class TimetableStore:
                     mask = df["room"].astype(str).apply(match_room)
                     df = df[mask]
         if time_slot and not df.empty:
-            df = df[df["time_slot"].apply(lambda s: _times_match(time_slot, s))]
+            ts_lower = time_slot.lower()
+            if ts_lower == "morning":
+                def _is_morning(s):
+                    start = _slot_start(s)
+                    return start and (start[0] * 60 + start[1]) < 12 * 60
+                df = df[df["time_slot"].apply(_is_morning)]
+            elif ts_lower in ["afternoon", "evening", "after lunch"]:
+                def _is_afternoon(s):
+                    start = _slot_start(s)
+                    return start and (start[0] * 60 + start[1]) >= 12 * 60
+                df = df[df["time_slot"].apply(_is_afternoon)]
+            else:
+                df = df[df["time_slot"].apply(lambda s: _times_match(time_slot, s))]
         
         if df.empty:
             return df
