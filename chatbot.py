@@ -754,6 +754,19 @@ class TimetableChatbot:
         if time_slot and any(w in time_slot.lower() for w in ["free", "empty", "occupied", "period"]):
             time_slot = None
 
+        # Robustly handle relative time references in Python instead of relying on the LLM
+        now = datetime.datetime.now()
+        if time_slot and time_slot.lower() in ("now", "right now", "currently", "current"):
+            day = now.strftime("%A")
+            time_slot = now.strftime("%I:%M %p").lstrip('0')
+            
+        if day:
+            day_lower = day.lower()
+            if day_lower == "today":
+                day = now.strftime("%A")
+            elif day_lower == "tomorrow":
+                day = (now + datetime.timedelta(days=1)).strftime("%A")
+
         # Auto-correct intents if specific filters are provided that the overview intents don't support
         if intent == "get_day_schedule":
             if not day or subject or professor or room or time_slot:
