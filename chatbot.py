@@ -147,7 +147,10 @@ def _ollama_chat(model: str, messages: list[dict], temperature: float = 0.2, tim
         "model": model,
         "messages": messages,
         "stream": False,
-        "options": {"temperature": temperature},
+        "options": {
+            "temperature": temperature,
+            "num_predict": 250
+        },
     }
     if format_json:
         body["format"] = "json"
