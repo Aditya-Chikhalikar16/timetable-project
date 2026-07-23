@@ -123,6 +123,7 @@ Rules:
 - Be warm and conversational, like a friendly senior student
 - Use emoji sparingly (0-1 per message)
 - NEVER abbreviate professor names. If you mention a name from the data, use the exact full name shown.
+- If the data contains multiple different classes, days, or professors, your intro MUST be a general summary (e.g., "I found a few matching classes for you!" or "Here are those classes:"). DO NOT randomly pick the first class in the data to describe.
 - If the data says "no classes found" or "not found", interpret it based on the user's question. If they asked if a room or person is free/unoccupied, tell them "Good news! It is completely free/unoccupied!" Otherwise, suggest what they could try.
 - NEVER mention specific times, rooms, subjects, or professor names UNLESS they are in the data below
 - Just write the intro, nothing else"""
@@ -601,6 +602,7 @@ class TimetableChatbot:
         # data to prevent the LLM from trying to "correct" typos in the user's prompt.
         answer_messages = [{"role": "system", "content": ANSWER_SYSTEM}]
         answer_messages.append({"role": "user", "content": (
+            f"[User's Original Question:]\n{user_message}\n\n"
             f"[Retrieved timetable data for this question:]\n{data_text}\n\n"
             "Write ONLY a short intro sentence. Do NOT list the data."
         )})
