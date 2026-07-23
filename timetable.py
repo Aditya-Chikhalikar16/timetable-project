@@ -117,12 +117,12 @@ class TimetableStore:
     def find_subjects(self, query: str) -> list[str]:
         """Fuzzy match subject names with typo tolerance."""
         import difflib
-        q_words = [w for w in re.split(r"\W+", query.lower()) if len(w) > 2 and w not in ('lecture', 'lectures', 'class', 'classes', 'schedule', 'timetable')]
+        q_words = [w for w in re.split(r"\W+", query.lower()) if len(w) > 1 and w not in ('lecture', 'lectures', 'class', 'classes', 'schedule', 'timetable')]
         if not q_words:
             return []
         scored = []
         for subj in self.subjects:
-            p_words = [w for w in re.split(r"\W+", subj.lower()) if len(w) > 2]
+            p_words = [w for w in re.split(r"\W+", subj.lower()) if len(w) > 1]
             total_score = 0
             for qw in q_words:
                 best_match = 0

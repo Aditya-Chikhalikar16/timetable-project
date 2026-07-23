@@ -100,7 +100,7 @@ Respond with ONLY valid JSON — no prose, no markdown fences:
 }}
 
 Rules:
-- When the user names a subject, use the natural name. "Physics" matches "AP (Applied Physics)", "Math" matches "M-I (Engineering Mathematics I)".
+- When the user names a subject, extract its exact abbreviation if possible. "Physics" → "AP", "Math" → "M-I". This ensures both theory and lab classes are matched.
 - Normalize divisions: "CE 2" → "CE2", "it1" → "IT1".
 - "labs" without other context → set class_type to "Lab".
 - "tomorrow", "today" → leave day as null.
