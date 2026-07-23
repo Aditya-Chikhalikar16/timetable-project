@@ -205,7 +205,13 @@ elif view_mode == "Edit":
                     st.error("Fill all required fields.")
 
     with tab_edit:
-        records = store.query(division=division_filter, day=day_filter, limit=50)
+        search_edit = st.text_input("🔍 Search entry to edit (by subject, day, division...)", key="edit_search")
+        records = store.query(division=division_filter, day=day_filter, limit=None)
+        if search_edit:
+            s = search_edit.lower()
+            records = [r for r in records if s in str(r).lower()]
+        records = records[:100]
+        
         if records:
             labels = [f"{r['day']} {r['time_slot']} | {r['division']} | {r['subject']}" for r in records]
             idx = st.selectbox("Select entry", range(len(labels)), format_func=lambda i: labels[i])
@@ -234,10 +240,16 @@ elif view_mode == "Edit":
                         st.success("Updated!")
                         st.rerun()
         else:
-            st.info("No entries to edit. Adjust sidebar filters.")
+            st.info("No entries found. Try adjusting your search or sidebar filters.")
 
     with tab_del:
-        records = store.query(division=division_filter, limit=30)
+        search_del = st.text_input("🔍 Search entry to delete (by subject, day, division...)", key="del_search")
+        records = store.query(division=division_filter, day=day_filter, limit=None)
+        if search_del:
+            s = search_del.lower()
+            records = [r for r in records if s in str(r).lower()]
+        records = records[:100]
+        
         if records:
             labels = [f"{r['day']} {r['time_slot']} | {r['division']} | {r['subject']}" for r in records]
             idx = st.selectbox("Entry to delete", range(len(labels)), format_func=lambda i: labels[i], key="del_sel")
@@ -256,4 +268,4 @@ elif view_mode == "Edit":
                     st.success("Deleted!")
                     st.rerun()
         else:
-            st.info("No entries to delete.")
+            st.info("No entries found.")
