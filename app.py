@@ -205,16 +205,11 @@ elif view_mode == "Edit":
                     st.error("Fill all required fields.")
 
     with tab_edit:
-        search_edit = st.text_input("🔍 Search entry to edit (by subject, day, division...)", key="edit_search")
         records = store.query(division=division_filter, day=day_filter, limit=None)
-        if search_edit:
-            search_words = [w.strip() for w in search_edit.lower().split() if w.strip()]
-            records = [r for r in records if all(w in str(r).lower() for w in search_words)]
-        records = records[:100]
         
         if records:
             labels = [f"{r['day']} {r['time_slot']} | {r['division']} | {r['subject']}" for r in records]
-            idx = st.selectbox("Select entry", range(len(labels)), format_func=lambda i: labels[i])
+            idx = st.selectbox("Search and select entry to edit", range(len(labels)), format_func=lambda i: labels[i], key="edit_sel")
             entry = records[idx]
             with st.form("edit_form"):
                 new_prof = st.text_input("Professor", value=entry["professor"])
@@ -240,19 +235,14 @@ elif view_mode == "Edit":
                         st.success("Updated!")
                         st.rerun()
         else:
-            st.info("No entries found. Try adjusting your search or sidebar filters.")
+            st.info("No entries found. Try adjusting your sidebar filters.")
 
     with tab_del:
-        search_del = st.text_input("🔍 Search entry to delete (by subject, day, division...)", key="del_search")
         records = store.query(division=division_filter, day=day_filter, limit=None)
-        if search_del:
-            search_words = [w.strip() for w in search_del.lower().split() if w.strip()]
-            records = [r for r in records if all(w in str(r).lower() for w in search_words)]
-        records = records[:100]
         
         if records:
             labels = [f"{r['day']} {r['time_slot']} | {r['division']} | {r['subject']}" for r in records]
-            idx = st.selectbox("Entry to delete", range(len(labels)), format_func=lambda i: labels[i], key="del_sel")
+            idx = st.selectbox("Search and select entry to delete", range(len(labels)), format_func=lambda i: labels[i], key="del_sel")
             entry = records[idx]
             if st.button("Delete entry", type="primary"):
                 mask = (
