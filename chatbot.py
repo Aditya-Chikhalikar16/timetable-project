@@ -753,6 +753,11 @@ class TimetableChatbot:
         if intent == "get_filtered_schedule":
             if room or time_slot:
                 intent = "query_timetable"
+                
+        if intent == "find_class":
+            msg = user_message.lower()
+            if "id" not in msg and "delete" not in msg and "replace" not in msg and "find" not in msg:
+                intent = "query_timetable"
 
         if intent == "query_timetable":
             records = self.store.query(
