@@ -493,7 +493,6 @@ class TimetableChatbot:
 
         # If they asked for free time, compute the inverse schedule (gaps)
         if any(w in user_message.lower() for w in ["free", "empty", "gap", "available"]):
-            import re
             
             def _parse_clock(text):
                 text = text.strip().lower().replace(".", "")
