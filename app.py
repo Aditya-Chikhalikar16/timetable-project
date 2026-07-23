@@ -11,6 +11,9 @@ logger = logging.getLogger(__name__)
 
 st.set_page_config(page_title="Timetable Assistant", page_icon="📅", layout="wide")
 
+if "toast_msg" in st.session_state:
+    st.toast(st.session_state.toast_msg)
+    del st.session_state.toast_msg
 
 def get_store():
     store = st.session_state.get("timetable_store")
@@ -200,7 +203,7 @@ elif view_mode == "Edit":
                         store.add_entry(professor=professor, day=day, time_slot=time_slot,
                             division=division, subject=subject, room=room, type=class_type)
                         store.save()
-                        st.success("Entry added!")
+                        st.session_state.toast_msg = "✅ Entry successfully added to the database!"
                         st.rerun()
                     except PermissionError:
                         st.error("❌ Cannot save changes! Please close the timetable CSV file in Excel or other programs and try again.")
@@ -236,7 +239,7 @@ elif view_mode == "Edit":
                             store.update_entry(int(ids.iloc[0]), professor=new_prof, day=new_day,
                                 time_slot=new_slot, division=new_div, subject=new_subj, room=new_room, type=new_type)
                             store.save()
-                            st.success("Updated!")
+                            st.session_state.toast_msg = "✏️ Entry successfully updated!"
                             st.rerun()
                         except PermissionError:
                             st.error("❌ Cannot save changes! Please close the timetable CSV file in Excel or other programs and try again.")
@@ -262,7 +265,7 @@ elif view_mode == "Edit":
                 if len(ids) and store.delete_entry(int(ids.iloc[0])):
                     try:
                         store.save()
-                        st.success("Deleted!")
+                        st.session_state.toast_msg = "🗑️ Entry successfully deleted from the database!"
                         st.rerun()
                     except PermissionError:
                         st.error("❌ Cannot save changes! Please close the timetable CSV file in Excel or other programs and try again.")

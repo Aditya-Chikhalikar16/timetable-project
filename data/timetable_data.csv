@@ -39,8 +39,6 @@ Dr. T. D. Gadekar,Thursday,12:45 pm - 13:45 pm,AD2,EG (Engineering Graphics),AC 
 Dr. T. D. Gadekar,Thursday,13:45 pm - 14:45 pm,AD2,EG (Engineering Graphics),AC 404,Theory
 Dr. D. P. Sali,Thursday,15:15 pm - 16:15 pm,AD2,"AP Lab Batch A / EEL-1 Batch B,C",MB 601/MB 605 / MB 614,Lab
 Ms. A. A. Bijawe,Thursday,15:15 pm - 16:15 pm,AD2,"AP Lab Batch A / EEL-1 Batch B,C",MB 601/MB 605 / MB 614,Lab
-Dr. K. S. Dhabekar,Friday,10:00 am- 11:00 am,AD2,"AP:C Lab / EEL-1 Batch A,B",MB 601/MB 605 / MB 614,Lab
-Ms. M. A. Indalkar,Friday,10:00 am- 11:00 am,AD2,"AP:C Lab / EEL-1 Batch A,B",MB 601/MB 605 / MB 614,Lab
 Mrs. P. D. Kakde,Friday,12:45 pm - 13:45 pm,AD2,M-I (Engineering Mathematics I),AC 404,Theory
 Mrs. V. Y. Shinde,Friday,13:45 pm - 14:45 pm,AD2,ICC (Indian Culture & Civilization),AC 404,Theory
 Dr. K. S. Dhabekar,Friday,15:15 pm - 16:15 pm,AD2,"AP Lab Batch B / EEL-1 Batch A,C",MB 601/MB 605 / MB 614,Lab
@@ -68,7 +66,6 @@ Dr. P. K. Katare,Thursday,13:45 pm - 14:45 pm,AD3,EG (Engineering Graphics),AC 4
 Mrs. P. D. Kakde,Friday,11:00 am - 12:00 pm,AD3,M-I (Engineering Mathematics I),AC 301,Theory
 Ms. G. N. Rukare,Friday,12:45 pm - 13:45 pm,AD3,FPL Tutorial,MB 614,Tutorial
 Dr. D. P. Sali,Friday,13:45 pm - 14:45 pm,AD3,AP (Applied Physics),AC 504,Theory
-Ms. Y. V. Belkhede,Friday,10:00 am- 11:00 am,AD3,FPL (Fundamentals of Programming Languages),AC 301,Theory
 Dr. A. S. Sawaikar,Monday,11:00 am - 12:00 pm,CE1,AP (Applied Physics),AC 303,Theory
 Mrs. V. Y. Shinde,Monday,12:45 pm - 13:45 pm,CE1,M-I (Engineering Mathematics I),AC 501,Theory
 Ms. C. P. Thottan,Monday,13:45 pm - 14:45 pm,CE1,BET (Basics of Electrical Technology),AC 501,Theory
@@ -86,7 +83,6 @@ Ms. S. S. Jawalkar,Thursday,12:45 pm - 13:45 pm,CE1,EG (Engineering Graphics),AC
 Ms. S. S. Jawalkar,Thursday,13:45 pm - 14:45 pm,CE1,EG (Engineering Graphics),AC 501,Theory
 Ms. D. R. Sangpal,Thursday,15:15 pm - 16:15 pm,CE1,M-I Tutorial,MB 207A,Tutorial
 Ms. S. A. Upasani,Thursday,16:15 pm - 17:15 pm,CE1,BET (Basics of Electrical Technology),AC 403,Theory
-Ms. C. P. Thottan,Friday,10:00 am- 11:00 am,CE1,BET Tutorial,MB 207A,Tutorial
 Dr. T. D. Gadekar,Friday,11:00 am - 12:00 pm,CE1,EG Tutorial,MB 207A,Tutorial
 Ms. D. S. Sisodia,Friday,12:45 pm - 13:45 pm,CE1,ICC (Indian Culture & Civilization),AC 504,Theory
 Ms. Y. V. Belkhede,Friday,13:45 pm - 14:45 pm,CE1,FPL Tutorial,MB 614,Tutorial
@@ -112,7 +108,6 @@ Mrs. V. Y. Shinde,Thursday,12:45 pm - 13:45 pm,CE2,M-I (Engineering Mathematics 
 Mr. A. N. Bochare,Thursday,13:45 pm - 14:45 pm,CE2,BET (Basics of Electrical Technology),AC 502,Theory
 Dr. K. S. Dhabekar,Thursday,15:15 pm - 16:15 pm,CE2,"BET Lab Batch A / EEL-1 Batch B,C",MB 601/MB 605 / MB 207B,Lab
 Ms. A. D. Wangikar,Thursday,15:15 pm - 16:15 pm,CE2,"BET Lab Batch A / EEL-1 Batch B,C",MB 601/MB 605 / MB 207B,Lab
-Mr. A. N. Bochare,Friday,10:00 am- 11:00 am,CE2,"BET:C Lab / EEL-1 Batch A,B",MB 601/MB 605 / MB 207B,Lab
 Ms. Y. V. Belkhede,Friday,10:00 am- 11:00 am,CE2,"BET:C Lab / EEL-1 Batch A,B",MB 601/MB 605 / MB 207B,Lab
 Ms. D. R. Sangpal,Friday,12:45 pm - 13:45 pm,CE2,M-I (Engineering Mathematics I),AC 502,Theory
 Mr. A. N. Bochare,Friday,15:15 pm - 16:15 pm,CE2,"BET Lab Batch B / EEL-1 Batch A,C",MB 601/MB 605 / MB 207B,Lab
