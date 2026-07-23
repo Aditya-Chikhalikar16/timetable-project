@@ -491,6 +491,75 @@ class TimetableChatbot:
                 return msg, None
             return "I checked the timetable, but I couldn't find any classes matching your request. You might want to try checking another day or time! 📅", None
 
+        # If they asked for free time, compute the inverse schedule (gaps)
+        if any(w in user_message.lower() for w in ["free", "empty", "gap", "available"]):
+            import re
+            
+            def _parse_clock(text):
+                text = text.strip().lower().replace(".", "")
+                m = re.search(r"(\d{1,2})(?::(\d{2}))?\s*(am|pm)?", text)
+                if not m: return None
+                h, mi, ap = int(m.group(1)), int(m.group(2) or 0), m.group(3) or ""
+                if ap == "pm" and h < 12: h += 12
+                elif ap == "am" and h == 12: h = 0
+                elif not ap and h <= 7: h += 12
+                return (h, mi)
+
+            def _slot_bounds(start_str, end_str):
+                start = _parse_clock(start_str)
+                end = _parse_clock(end_str)
+                if not start or not end: return None
+                return (start[0]*60 + start[1], end[0]*60 + end[1])
+
+            def min_to_str(m):
+                h = m // 60
+                mn = m % 60
+                ap = "am" if h < 12 else "pm"
+                h_str = h if h <= 12 else h - 12
+                if h_str == 0: h_str = 12
+                return f"{h_str}:{mn:02d} {ap}"
+
+            slots_by_day = {}
+            for line in data_text.splitlines():
+                m = re.search(r"- \*\*([^*]+)\*\*\s*(\d{1,2}:\d{2}\s*[ap]m)\s*-\s*(\d{1,2}:\d{2}\s*[ap]m)", line.lower())
+                if m:
+                    d, s, e = m.groups()
+                    slots_by_day.setdefault(d.title(), []).append((s, e))
+            
+            if slots_by_day:
+                res = []
+                for d, slots in slots_by_day.items():
+                    intervals = []
+                    for s, e in slots:
+                        b = _slot_bounds(s, e)
+                        if b: intervals.append(b)
+                    intervals.sort()
+                    merged = []
+                    for i in intervals:
+                        if not merged: merged.append(i)
+                        else:
+                            last = merged[-1]
+                            if i[0] <= last[1]:
+                                merged[-1] = (last[0], max(last[1], i[1]))
+                            else:
+                                merged.append(i)
+                    gaps = []
+                    curr = 8 * 60 # 8:00 AM
+                    for m in merged:
+                        if m[0] > curr:
+                            gaps.append((curr, m[0]))
+                        curr = max(curr, m[1])
+                    if curr < 17 * 60 + 15: # 5:15 PM
+                        gaps.append((curr, 17 * 60 + 15))
+                        
+                    gap_strs = [f"{min_to_str(g[0])} to {min_to_str(g[1])}" for g in gaps]
+                    if not gap_strs:
+                        res.append(f"On **{d}**, there is no free time between 8:00 am and 5:15 pm.")
+                    else:
+                        res.append(f"On **{d}**, free time is: **" + "**, **".join(gap_strs) + "**")
+                
+                return "\n".join(res), None
+
         # ── Phase 3: generate natural INTRO only ──────────────────────────
         # The LLM writes ONLY a brief intro sentence. We pass ONLY the retrieved
         # data to prevent the LLM from trying to "correct" typos in the user's prompt.

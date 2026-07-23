@@ -14,7 +14,7 @@ def _parse_clock(text: str) -> tuple[int, int] | None:
     if not m:
         return None
     h, mi, ap = int(m.group(1)), int(m.group(2) or 0), m.group(3) or ""
-    if ap == "pm" and h != 12:
+    if ap == "pm" and h < 12:
         h += 12
     elif ap == "am" and h == 12:
         h = 0
