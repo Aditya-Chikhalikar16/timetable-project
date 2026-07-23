@@ -6,6 +6,7 @@ import logging
 import re
 import urllib.error
 import urllib.request
+import datetime
 from typing import Any
 
 from timetable import TimetableStore
@@ -24,10 +25,10 @@ GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
 # Prompts
 # ---------------------------------------------------------------------------
 
-EXTRACT_SYSTEM = """You are a college timetable assistant. Your ONLY job is to read the user's message and output a JSON action plan.
+EXTRACT_SYSTEM = """You are a smart JSON intent extractor for a college timetable application.
+Current system time: {current_time}
 
-The timetable has these divisions: AD1, AD2, AD3, CE1, CE2, CE3, ET1, ET2, ET3, EL, IT1, IT2, IT3, ME1, ME2.
-Days: Monday, Tuesday, Wednesday, Thursday, Friday.
+Available days: Monday, Tuesday, Wednesday, Thursday, Friday.
 Class types: Theory, Lab, Tutorial, Practical.
 
 {subject_list}
@@ -61,11 +62,14 @@ You will receive conversation history. Use it to resolve references:
 - "what about Monday" → KEEP division, change day
 - Only inherit fields the user does NOT explicitly change.
 
-UNDERSTANDING CASUAL LANGUAGE:
+UNDERSTANDING CASUAL LANGUAGE & TIME:
 - "sir", "mam", "madam", "teacher" → the word before it is the professor's name. "bochare sir" → professor: "bochare"
 - "free period", "any gaps", "off" → query_timetable to check what's NOT scheduled
 - "after lunch", "afternoon" → time after 1:00 pm
 - "morning" → before 12:00 pm
+- "now", "right now", "currently" → set `day` and `time_slot` to the exact day and time from 'Current system time' above.
+- "today" → set `day` to the day from 'Current system time'.
+- "tomorrow" → set `day` to the day after 'Current system time'.
 - Division names may be messy: "ce 2" → "CE2", "i.t. 1" → "IT1", "ad-3" → "AD3"
 - Misspellings: try your best to match against the professor/subject lists above
 
@@ -440,6 +444,7 @@ class TimetableChatbot:
         subject_list = "Available subjects in the timetable:\n" + ", ".join(sorted(unique_subjects)[:30])
         
         system_prompt = EXTRACT_SYSTEM.format(
+            current_time=datetime.datetime.now().strftime('%A, %I:%M %p'),
             subject_list=subject_list
         )
         

@@ -1,14 +1,13 @@
 {
-  "raw": "{\n  \"intent\": \"get_professor_schedule\",\n  \"division\": null,\n  \"day\": null,\n  \"time_slot\": null,\n  \"subject\": null,\n  \"professor\": \"Sangpal mam\",\n  \"class_type\": null,\n  \"room\": null,\n  \"entry_id\": null\n}",
+  "raw": "{\n  \"intent\": \"query_timetable\",\n  \"division\": null,\n  \"day\": null,\n  \"time_slot\": null,\n  \"subject\": null,\n  \"professor\": null,\n  \"class_type\": null,\n  \"room\": \"AC 301\"\n}",
   "plan": {
-    "intent": "get_professor_schedule",
+    "intent": "query_timetable",
     "division": null,
     "day": null,
     "time_slot": null,
     "subject": null,
-    "professor": "Sangpal mam",
+    "professor": null,
     "class_type": null,
-    "room": null,
-    "entry_id": null
+    "room": "AC 301"
   }
 }

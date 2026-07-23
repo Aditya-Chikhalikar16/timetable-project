@@ -34,8 +34,23 @@ def _slot_sort_key(slot: str) -> tuple:
 
 def _times_match(query_time: str, slot: str) -> bool:
     q = _parse_clock(query_time)
+    if not q:
+        return False
+    
+    parts = slot.split("-")
+    if len(parts) == 2:
+        start = _parse_clock(parts[0])
+        end = _parse_clock(parts[1])
+        if start and end:
+            q_min = q[0] * 60 + q[1]
+            s_min = start[0] * 60 + start[1]
+            e_min = end[0] * 60 + end[1]
+            # Match if query falls between start (inclusive) and end (exclusive)
+            return s_min <= q_min < e_min
+            
+    # Fallback to exact start match if bounds not available
     s = _slot_start(slot)
-    return q is not None and s is not None and q == s
+    return s is not None and q == s
 
 class TimetableStore:
     def __init__(self, csv_path=None):
