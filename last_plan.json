@@ -1,7 +1,7 @@
 {
-  "raw": "{\n  \"intent\": \"get_day_schedule\",\n  \"division\": \"AD1\",\n  \"day\": null,\n  \"time_slot\": null,\n  \"subject\": \"AP (Applied Physics)\",\n  \"professor\": null,\n  \"class_type\": null,\n  \"room\": null,\n  \"entry_id\": null\n}",
+  "raw": "{\n  \"intent\": \"get_filtered_schedule\",\n  \"division\": \"AD1\",\n  \"day\": null,\n  \"time_slot\": null,\n  \"subject\": \"AP (Applied Physics)\",\n  \"professor\": null,\n  \"class_type\": null,\n  \"room\": null,\n  \"entry_id\": null,\n  \"new_professor\": null,\n  \"new_day\": null,\n  \"new_time_slot\": null,\n  \"new_division\": null,\n  \"new_subject\": null,\n  \"new_room\": null,\n  \"new_type\": null,\n  \"old_subject\": null,\n  \"new_subject_replace\": null\n}",
   "plan": {
-    "intent": "get_day_schedule",
+    "intent": "get_filtered_schedule",
     "division": "AD1",
     "day": null,
     "time_slot": null,
@@ -9,6 +9,15 @@
     "professor": null,
     "class_type": null,
     "room": null,
-    "entry_id": null
+    "entry_id": null,
+    "new_professor": null,
+    "new_day": null,
+    "new_time_slot": null,
+    "new_division": null,
+    "new_subject": null,
+    "new_room": null,
+    "new_type": null,
+    "old_subject": null,
+    "new_subject_replace": null
   }
 }

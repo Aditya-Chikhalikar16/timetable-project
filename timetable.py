@@ -273,19 +273,27 @@ class TimetableStore:
         if not records:
             return "No matching classes found."
         lines = [title] if title else []
-        by_slot = {}
+        by_day_slot = {}
+        unique_days = set()
         for r in records:
-            by_slot.setdefault(r["time_slot"], []).append(r)
-        for slot in sorted(by_slot.keys(), key=_slot_sort_key):
-            slot_records = by_slot[slot]
+            unique_days.add(r["day"])
+            by_day_slot.setdefault((r["day"], r["time_slot"]), []).append(r)
+            
+        def _sort_key(k):
+            day_idx = DAYS_ORDER.index(k[0]) if k[0] in DAYS_ORDER else 99
+            return (day_idx, _slot_sort_key(k[1]))
+            
+        for day, slot in sorted(by_day_slot.keys(), key=_sort_key):
+            slot_records = by_day_slot[(day, slot)]
             by_subject = {}
             for r in slot_records:
                 key = (r["subject"], r["type"], r["room"])
                 by_subject.setdefault(key, []).append(r["professor"])
             for (subject, ctype, room), profs in by_subject.items():
                 prof_list = ", ".join(dict.fromkeys(profs))
+                slot_label = f"{day} {slot}" if len(unique_days) > 1 else slot
                 lines.append(
-                    f"\n**{slot}** — {subject} ({ctype})\n"
+                    f"\n**{slot_label}** — {subject} ({ctype})\n"
                     f"  Faculty: {prof_list} | Room: {room}"
                 )
         return "\n".join(lines) if lines else "No matching classes found."
