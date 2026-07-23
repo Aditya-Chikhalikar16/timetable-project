@@ -1,14 +1,14 @@
 {
-  "raw": "{\n  \"intent\": \"query_timetable\",\n  \"division\": null,\n  \"day\": \"Tuesday\",\n  \"time_slot\": \"morning\",\n  \"subject\": null,\n  \"professor\": null,\n  \"class_type\": null,\n  \"room\": \"MB 207A\",\n  \"entry_id\": null\n}",
+  "raw": "{\n  \"intent\": \"get_day_schedule\",\n  \"division\": \"AD1\",\n  \"day\": null,\n  \"time_slot\": null,\n  \"subject\": \"AP (Applied Physics)\",\n  \"professor\": null,\n  \"class_type\": null,\n  \"room\": null,\n  \"entry_id\": null\n}",
   "plan": {
-    "intent": "query_timetable",
-    "division": null,
-    "day": "Tuesday",
-    "time_slot": "morning",
-    "subject": null,
+    "intent": "get_day_schedule",
+    "division": "AD1",
+    "day": null,
+    "time_slot": null,
+    "subject": "AP (Applied Physics)",
     "professor": null,
     "class_type": null,
-    "room": "MB 207A",
+    "room": null,
     "entry_id": null
   }
 }

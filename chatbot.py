@@ -735,6 +735,23 @@ class TimetableChatbot:
         if time_slot and any(w in time_slot.lower() for w in ["free", "empty", "occupied", "period"]):
             time_slot = None
 
+        # Auto-correct intents if specific filters are provided that the overview intents don't support
+        if intent == "get_day_schedule":
+            if not day or subject or professor or room or time_slot:
+                intent = "query_timetable"
+                
+        if intent == "get_division_timetable":
+            if not div or subject or professor or room or time_slot or class_type or day:
+                intent = "query_timetable"
+                
+        if intent == "get_professor_schedule":
+            if subject or room:
+                intent = "query_timetable"
+                
+        if intent == "get_filtered_schedule":
+            if room or time_slot:
+                intent = "query_timetable"
+
         if intent == "query_timetable":
             records = self.store.query(
                 division=div, day=day, time_slot=time_slot,
