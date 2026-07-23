@@ -1,9 +1,9 @@
 {
-  "raw": "{\n  \"intent\": \"query_timetable\",\n  \"division\": null,\n  \"day\": null,\n  \"time_slot\": \"now\",\n  \"subject\": null,\n  \"professor\": null,\n  \"class_type\": null,\n  \"room\": \"MB 207A\"\n}",
+  "raw": "{\n  \"intent\": \"query_timetable\",\n  \"division\": null,\n  \"day\": \"Thursday\",\n  \"time_slot\": \"now\",\n  \"subject\": null,\n  \"professor\": null,\n  \"class_type\": null,\n  \"room\": \"MB 207A\"\n}",
   "plan": {
     "intent": "query_timetable",
     "division": null,
-    "day": null,
+    "day": "Thursday",
     "time_slot": "now",
     "subject": null,
     "professor": null,
