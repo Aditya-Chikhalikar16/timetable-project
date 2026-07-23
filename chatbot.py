@@ -50,7 +50,7 @@ INTENT SELECTION GUIDE (pick the BEST match):
   Examples: "who teaches CE2 at 10 am on monday" (requires division AND time_slot)
 - "get_timetable_summary" — Overview statistics.
   Examples: "how many classes total", "summary", "overview"
-- "find_class" — Search with entry IDs shown.
+- "find_class" — ONLY use this if the user explicitly asks to show entry IDs, or if they want to find a class to delete/replace it.
 - "chitchat" — Greetings, thanks, jokes, unrelated questions.
   Examples: "hi", "thanks", "what's the weather"
 

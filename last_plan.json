@@ -1,11 +1,11 @@
 {
-  "raw": "{\n  \"intent\": \"get_professor_schedule\",\n  \"division\": \"ET3\",\n  \"day\": null,\n  \"time_slot\": null,\n  \"subject\": \"Engineering Mathematics\",\n  \"professor\": null,\n  \"class_type\": null,\n  \"room\": null,\n  \"entry_id\": null\n}",
+  "raw": "{\n  \"intent\": \"get_day_schedule\",\n  \"division\": \"ME1\",\n  \"day\": \"Monday\",\n  \"time_slot\": null,\n  \"subject\": null,\n  \"professor\": null,\n  \"class_type\": null,\n  \"room\": null,\n  \"entry_id\": null\n}",
   "plan": {
-    "intent": "get_professor_schedule",
-    "division": "ET3",
-    "day": null,
+    "intent": "get_day_schedule",
+    "division": "ME1",
+    "day": "Monday",
     "time_slot": null,
-    "subject": "Engineering Mathematics",
+    "subject": null,
     "professor": null,
     "class_type": null,
     "room": null,
