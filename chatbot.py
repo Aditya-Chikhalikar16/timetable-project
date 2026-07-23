@@ -559,6 +559,38 @@ class TimetableChatbot:
                 
                 return "\n".join(res), None
 
+        # Check if they just want a specific list of attributes
+        msg_lower = user_message.lower()
+        target = None
+        idx = -1
+        if "which division" in msg_lower or "what division" in msg_lower:
+            target = "divisions"
+            idx = 1
+        elif "which subject" in msg_lower or "what subject" in msg_lower or "which class" in msg_lower or "what class" in msg_lower:
+            target = "subjects"
+            idx = 2
+        elif "which room" in msg_lower or "what room" in msg_lower or "where" in msg_lower:
+            target = "rooms"
+            idx = 3
+
+        if target and "No matching classes found" not in data_text:
+            items = set()
+            for line in data_text.splitlines():
+                if line.startswith("- **"):
+                    parts = line.split("|")
+                    if len(parts) >= 4:
+                        val = parts[idx].strip()
+                        if target == "rooms":
+                            m = re.match(r"Room\s+(.+?)\s+\(", val)
+                            if m: val = m.group(1)
+                        if target == "subjects":
+                            m = re.match(r"(.*?)\s+\(", val)
+                            if m: val = m.group(1)
+                        items.add(val)
+            if items:
+                items_str = ", ".join(sorted(items))
+                return f"Here are the {target} I found: **{items_str}**", None
+
         # ── Phase 3: generate natural INTRO only ──────────────────────────
         # The LLM writes ONLY a brief intro sentence. We pass ONLY the retrieved
         # data to prevent the LLM from trying to "correct" typos in the user's prompt.

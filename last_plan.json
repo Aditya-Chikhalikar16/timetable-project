@@ -1,12 +1,12 @@
 {
-  "raw": "{\n  \"intent\": \"query_timetable\",\n  \"division\": null,\n  \"day\": \"Wednesday\",\n  \"time_slot\": null,\n  \"subject\": null,\n  \"professor\": \"Indalkar mam\",\n  \"class_type\": null,\n  \"room\": null,\n  \"entry_id\": null\n}",
+  "raw": "{\n  \"intent\": \"get_professor_schedule\",\n  \"division\": null,\n  \"day\": null,\n  \"time_slot\": null,\n  \"subject\": null,\n  \"professor\": \"Sangpal mam\",\n  \"class_type\": null,\n  \"room\": null,\n  \"entry_id\": null\n}",
   "plan": {
-    "intent": "query_timetable",
+    "intent": "get_professor_schedule",
     "division": null,
-    "day": "Wednesday",
+    "day": null,
     "time_slot": null,
     "subject": null,
-    "professor": "Indalkar mam",
+    "professor": "Sangpal mam",
     "class_type": null,
     "room": null,
     "entry_id": null
